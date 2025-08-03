@@ -1,22 +1,11 @@
-const bcrypt = require("bcryptjs");
-const User = require("../models/user");
-const Token = require("../models/token");
-const crypto = require("crypto");
-const nodemailer = require("nodemailer");
-const tokenservice = require("../services/token");
-const usercontroller = require("../controllers/usercontroller");
-const dotenv = require("dotenv");
-
-dotenv.config();
+const authservice = require("../services/auth.service");
+const usercontroller = require("./usercontroller");
 
 const register = async (req, res) => {
     try {
-        const user = await usercontroller.createUser(req, res);
+        await authservice.register(req, res, usercontroller.createUser);
     } catch (error) {
-        console.error("Lỗi server:", error);
-        return res.status(500).json({
-            error: { message: "Lỗi Server: " + error.message }
-        });
+        return res.status(500).json({ error: { message: "Lỗi Server: " + error.message } });
     }
 };
 
@@ -24,151 +13,67 @@ const login = async (req, res) => {
     try {
         const { email, password } = req.body;
         if (!email || !password) {
-            return res.status(400).json({
-                error: { message: "Email và mật khẩu là bắt buộc!" }
-            });
+            return res.status(400).json({ error: { message: "Email và mật khẩu là bắt buộc!" } });
         }
-
-        const user = await User.findOne({ email: email });
-        if (!user || !(await bcrypt.compare(password, user.password))) {
-            return res.status(401).json({
-                error: { message: "Email hoặc mật khẩu không đúng!" }
-            });
+        const result = await authservice.login(email, password);
+        if (!result) {
+            return res.status(401).json({ error: { message: "Email hoặc mật khẩu không đúng!" } });
         }
-
-        const accessToken = tokenservice.generateAccessToken(user);
-        const refreshToken = tokenservice.generateRefreshToken(user);
-
-        return res.status(200).json({ accessToken, refreshToken, user_id: user._id });
+        return res.status(200).json(result);
     } catch (error) {
-        console.error("Lỗi server:", error);
-        return res.status(500).json({
-            error: { message: "Lỗi Server: " + error.message }
-        });
+        return res.status(500).json({ error: { message: "Lỗi Server: " + error.message } });
     }
 };
-
-const blacklist = new Set();
 
 const logout = (req, res) => {
     try {
         const { refreshToken } = req.body;
-        if (!refreshToken) {
-            return res.status(400).json({
-                error: { message: "Thiếu refresh token!" }
-            });
+        const result = authservice.logout(refreshToken);
+        if (result.error) {
+            return res.status(400).json({ error: { message: result.error } });
         }
-
-        if (blacklist.has(refreshToken)) {
-            return res.status(400).json({
-                error: { message: "Token đã bị vô hiệu hóa!" }
-            });
-        }
-
-        blacklist.add(refreshToken);
-        return res.status(200).json({ message: "Đăng xuất thành công!" });
+        return res.status(200).json({ message: result.message });
     } catch (error) {
-        console.error("Lỗi server:", error);
-        return res.status(500).json({
-            error: { message: "Lỗi Server: " + error.message }
-        });
+        return res.status(500).json({ error: { message: "Lỗi Server: " + error.message } });
     }
 };
 
-const refreshtoken = async (req, res) => {
+const refreshtoken = (req, res) => {
     try {
         const { refreshToken } = req.body;
-
-        if (!refreshToken) {
-            return res.status(400).json({
-                error: { message: "Không có refresh token!" }
-            });
+        const result = authservice.refreshtoken(refreshToken);
+        if (result.error) {
+            return res.status(403).json({ error: { message: result.error } });
         }
-
-        const newAccessToken = tokenservice.refreshAccessToken(refreshToken);
-        if (!newAccessToken) {
-            return res.status(403).json({
-                error: { message: "Refresh token không hợp lệ hoặc đã hết hạn!" }
-            });
-        }
-
-        return res.status(200).json({ accessToken: newAccessToken });
+        return res.status(200).json(result);
     } catch (error) {
-        console.error("Lỗi server:", error);
-        return res.status(500).json({
-            error: { message: "Lỗi Server: " + error.message }
-        });
+        return res.status(500).json({ error: { message: "Lỗi Server: " + error.message } });
     }
 };
-
-const transporter = nodemailer.createTransport({
-    service: "gmail",
-    auth: {
-        user: process.env.MAIL_USERNAME,
-        pass: process.env.MAIL_PASSWORD,
-    },
-});
 
 const forgotPassword = async (req, res) => {
     try {
         const { email } = req.body;
-        const user = await User.findOne({ email });
-        if (!user) {
-            return res.status(404).json({
-                error: { message: "Không tìm thấy người dùng" }
-            });
+        const result = await authservice.forgotPassword(email);
+        if (result.error) {
+            return res.status(404).json({ error: { message: result.error } });
         }
-
-        const token = crypto.randomBytes(32).toString("hex");
-        const expireTime = Date.now() + 15 * 60 * 1000;
-
-        user.resetPasswordToken = token;
-        user.resetPasswordExpires = expireTime;
-        await user.save();
-
-        const resetLink = `http://localhost:5173/user/reset-password?token=${token}`;
-
-        await transporter.sendMail({
-            from: `"Rạp Chiếu Phim" <${process.env.MAIL_USERNAME}>`,
-            to: email,
-            subject: "Yêu cầu đặt lại mật khẩu",
-            html: `<p>Click vào link sau để đặt lại mật khẩu:</p><a href="${resetLink}">${resetLink}</a>`,
-        });
-
-        return res.status(200).json({ message: "Đã gửi email đặt lại mật khẩu" });
+        return res.status(200).json({ message: result.message });
     } catch (error) {
-        console.error("Lỗi server:", error);
-        return res.status(500).json({
-            error: { message: "Lỗi Server: " + error.message }
-        });
+        return res.status(500).json({ error: { message: "Lỗi Server: " + error.message } });
     }
 };
 
 const resetPassword = async (req, res) => {
     try {
         const { token, newPassword } = req.body;
-        const user = await User.findOne({
-            resetPasswordToken: token,
-            resetPasswordExpires: { $gt: Date.now() },
-        });
-
-        if (!user) {
-            return res.status(400).json({
-                error: { message: "Token không hợp lệ hoặc đã hết hạn" }
-            });
+        const result = await authservice.resetPassword(token, newPassword);
+        if (result.error) {
+            return res.status(400).json({ error: { message: result.error } });
         }
-
-        user.password = newPassword;
-        user.resetPasswordToken = undefined;
-        user.resetPasswordExpires = undefined;
-        await user.save();
-
-        return res.status(200).json({ message: "Đặt lại mật khẩu thành công" });
+        return res.status(200).json({ message: result.message });
     } catch (error) {
-        console.error("Lỗi server:", error);
-        return res.status(500).json({
-            error: { message: "Lỗi Server: " + error.message }
-        });
+        return res.status(500).json({ error: { message: "Lỗi Server: " + error.message } });
     }
 };
 

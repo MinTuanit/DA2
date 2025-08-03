@@ -1,24 +1,12 @@
-const User = require("../models/user");
-const Order = require("../models/order");
-const bcrypt = require("bcryptjs");
+const userService = require('../services/user.service');
 
 const createUser = async (req, res) => {
-  const { email, phone, cccd, password } = req.body;
   try {
-    if (await User.isEmailTaken(email)) {
-      return res.status(409).json({ error: { message: "Email đã tồn tại, vui lòng chọn email khác!" } });
+    const result = await userService.createUser(req.body);
+    if (result?.error) {
+      return res.status(400).json({ error: { message: result.error } });
     }
-    if (await User.isPhoneTaken(phone)) {
-      return res.status(409).json({ error: { message: "Số điện thoại đã tồn tại" } });
-    }
-    if (await User.isCccdTaken(cccd)) {
-      return res.status(409).json({ error: { message: "CCCD đã tồn tại" } });
-    }
-    if (!password.match(/\d/) || !password.match(/[a-zA-Z]/) || password.length < 8) {
-      return res.status(400).json({ error: { message: "Mật khẩu phải chứa ít nhất 8 ký tự và chứa 1 số và 1 chữ cái." } });
-    }
-    const user = await User.create(req.body);
-    return res.status(201).json({ user });
+    return res.status(201).json(result);
   } catch (error) {
     console.error("Lỗi server!", error);
     return res.status(500).json({ error: { message: "Đã xảy ra lỗi khi tạo người dùng: " + error.message } });
@@ -27,7 +15,7 @@ const createUser = async (req, res) => {
 
 const getAllUsers = async (req, res) => {
   try {
-    const users = await User.find();
+    const users = await userService.getAllUsers();
     return res.status(200).json(users);
   } catch (error) {
     console.error("Lỗi server!", error);
@@ -37,7 +25,7 @@ const getAllUsers = async (req, res) => {
 
 const getUserById = async (req, res) => {
   try {
-    const user = await User.findById(req.params.id);
+    const user = await userService.getUserById(req.params.id);
     if (!user) {
       return res.status(404).json({ error: { message: "Không tìm thấy tài khoản có id: " + req.params.id } });
     }
@@ -54,8 +42,7 @@ const getUserByEmail = async (req, res) => {
     if (!email) {
       return res.status(400).json({ error: { message: "Thiếu email!" } });
     }
-
-    const user = await User.findOne({ email });
+    const user = await userService.getUserByEmail(email);
     if (!user) {
       return res.status(404).json({ error: { message: "Email không tồn tại!" } });
     }
@@ -69,31 +56,11 @@ const getUserByEmail = async (req, res) => {
 const getUserByRole = async (req, res) => {
   try {
     const { role } = req.params;
-    const validRoles = ["customer", "employee"];
-    if (!validRoles.includes(role)) {
-      return res.status(400).json({ error: { message: "Vai trò không hợp lệ: " + role } });
+    const result = await userService.getUserByRole(role);
+    if (result?.error) {
+      return res.status(400).json({ error: { message: result.error } });
     }
-
-    const users = await User.find({ role });
-    if (users.length === 0) {
-      return res.status(404).json({ error: { message: "Không tìm thấy người dùng với vai trò: " + role } });
-    }
-
-    const usersWithCredit = await Promise.all(users.map(async user => {
-      const orders = await Order.find({
-        user_id: user._id,
-        status: 'completed'
-      });
-
-      const totalSpent = orders.reduce((sum, order) => sum + order.total_price, 0);
-
-      return {
-        ...user.toObject(),
-        credit: totalSpent
-      };
-    }));
-
-    return res.status(200).json(usersWithCredit);
+    return res.status(200).json(result);
   } catch (error) {
     console.error("Lỗi server!", error);
     return res.status(500).json({ error: { message: "Lỗi Server: " + error.message } });
@@ -102,7 +69,7 @@ const getUserByRole = async (req, res) => {
 
 const deleteUserById = async (req, res) => {
   try {
-    const user = await User.findByIdAndDelete(req.params.id);
+    const user = await userService.deleteUserById(req.params.id);
     if (!user) {
       return res.status(404).json({ error: { message: "Không tìm thấy tài khoản có id: " + req.params.id } });
     }
@@ -115,49 +82,11 @@ const deleteUserById = async (req, res) => {
 
 const updateUserById = async (req, res) => {
   try {
-    const { email, phone, cccd, password } = req.body;
-    const userId = req.params.id;
-
-    // Kiểm tra trùng email
-    if (email) {
-      const existingEmail = await User.findOne({ email });
-      if (existingEmail && existingEmail._id.toString() !== userId) {
-        return res.status(409).json({ error: { message: "Email đã tồn tại, vui lòng chọn email khác!" } });
-      }
+    const result = await userService.updateUserById(req.params.id, req.body);
+    if (result?.error) {
+      return res.status(result.error.startsWith("Không tìm thấy") ? 404 : 400).json({ error: { message: result.error } });
     }
-
-    // Kiểm tra trùng số điện thoại
-    if (phone) {
-      const existingPhone = await User.findOne({ phone });
-      if (existingPhone && existingPhone._id.toString() !== userId) {
-        return res.status(409).json({ error: { message: "Số điện thoại đã tồn tại" } });
-      }
-    }
-
-    // Kiểm tra trùng CCCD
-    if (cccd) {
-      const existingCccd = await User.findOne({ cccd });
-      if (existingCccd && existingCccd._id.toString() !== userId) {
-        return res.status(409).json({ error: { message: "CCCD đã tồn tại" } });
-      }
-    }
-
-    // Kiểm tra mật khẩu hợp lệ nếu có
-    if (password) {
-      if (password.length < 8 || !password.match(/\d/) || !password.match(/[a-zA-Z]/)) {
-        return res.status(400).json({ error: { message: "Mật khẩu phải chứa ít nhất 8 ký tự và chứa 1 số và 1 chữ cái." } });
-      }
-      req.body.password = await bcrypt.hash(password, 8);
-    }
-
-    const updatedUser = await User.findByIdAndUpdate(userId, req.body, { new: true });
-
-    if (!updatedUser) {
-      return res.status(404).json({ error: { message: "Không tìm thấy tài khoản có id: " + userId } });
-    }
-
-    return res.status(200).json({ user: updatedUser });
-
+    return res.status(200).json(result);
   } catch (error) {
     console.error("Lỗi server!", error);
     return res.status(500).json({ error: { message: "Lỗi Server: " + error.message } });
@@ -165,19 +94,9 @@ const updateUserById = async (req, res) => {
 };
 
 const getUserCreditPoints = async (req, res) => {
-  const { userid } = req.params;
-
   try {
-    const orders = await Order.find({
-      user_id: userid,
-      status: 'completed'
-    });
-
-    const totalSpent = orders.reduce((sum, order) => sum + order.total_price, 0);
-
-    return res.status(200).json({
-      credit_points: totalSpent
-    });
+    const result = await userService.getUserCreditPoints(req.params.userid);
+    return res.status(200).json(result);
   } catch (err) {
     return res.status(500).json({ error: { message: "Lỗi khi tính điểm tích lũy" } });
   }

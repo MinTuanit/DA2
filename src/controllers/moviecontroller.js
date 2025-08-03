@@ -1,8 +1,8 @@
-const Movie = require("../models/movie");
+const movieservice = require("../services/movie.service");
 
 const createMovie = async (req, res) => {
     try {
-        const movie = await Movie.create(req.body);
+        const movie = await movieservice.createMovie(req.body);
         return res.status(201).json(movie);
     } catch (error) {
         console.log("Lỗi server! ", error);
@@ -12,7 +12,7 @@ const createMovie = async (req, res) => {
 
 const getAllMovies = async (req, res) => {
     try {
-        const movies = await Movie.find();
+        const movies = await movieservice.getAllMovies();
         return res.status(200).json(movies);
     } catch (error) {
         console.log("Lỗi server! ", error);
@@ -22,7 +22,7 @@ const getAllMovies = async (req, res) => {
 
 const getMovieById = async (req, res) => {
     try {
-        const movie = await Movie.findById(req.params.id);
+        const movie = await movieservice.getMovieById(req.params.id);
         if (!movie) {
             console.log("Phim không tồn tại!");
             return res.status(404).json({ error: { message: "Phim không tồn tại" } });
@@ -46,7 +46,7 @@ const getMovieByStatus = async (req, res) => {
             status = status.split(',').map(s => s.trim());
         }
 
-        const movies = await Movie.find({ status: { $in: status } });
+        const movies = await movieservice.getMovieByStatus(status);
 
         return res.status(200).json(movies);
     } catch (error) {
@@ -57,7 +57,7 @@ const getMovieByStatus = async (req, res) => {
 
 const deleteMovieById = async (req, res) => {
     try {
-        const movie = await Movie.findByIdAndDelete(req.params.id);
+        const movie = await movieservice.deleteMovieById(req.params.id);
         if (!movie) {
             console.log("Phim không tồn tại!");
             return res.status(404).json({ error: { message: "Phim không tồn tại" } });
@@ -71,10 +71,9 @@ const deleteMovieById = async (req, res) => {
 
 const updateMovieById = async (req, res) => {
     try {
-        const movie = await Movie.findByIdAndUpdate(
+        const movie = await movieservice.updateMovieById(
             req.params.id,
-            req.body,
-            { new: true }
+            req.body
         );
         if (!movie) {
             console.log("Phim không tồn tại!");

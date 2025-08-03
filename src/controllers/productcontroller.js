@@ -1,23 +1,12 @@
-const Product = require("../models/product");
-const Setting = require("../models/constraint");
+const productService = require('../services/product.service');
 
 const createProduct = async (req, res) => {
   try {
-    const setting = await Setting.findOne();
-    if (!setting) {
-      return res.status(500).json({ error: { message: "Không tìm thấy cài đặt hệ thống." } });
+    const result = await productService.createProduct(req.body);
+    if (result?.error) {
+      return res.status(400).json({ error: { message: result.error } });
     }
-
-    const { min_product_price, max_product_price } = setting;
-    const price = req.body.price;
-    if (price < min_product_price || price > max_product_price) {
-      return res.status(400).json({
-        error: { message: `Giá sản phẩm phải nằm trong khoảng ${min_product_price} đến ${max_product_price} VND` }
-      });
-    }
-
-    const product = await Product.create(req.body);
-    return res.status(201).json(product);
+    return res.status(201).json(result);
   } catch (error) {
     console.error("Lỗi server:", error);
     return res.status(500).json({ error: { message: "Lỗi server" } });
@@ -26,7 +15,7 @@ const createProduct = async (req, res) => {
 
 const getAllProducts = async (req, res) => {
   try {
-    const products = await Product.find();
+    const products = await productService.getAllProducts();
     return res.status(200).json(products);
   } catch (error) {
     console.error("Lỗi server:", error);
@@ -36,7 +25,7 @@ const getAllProducts = async (req, res) => {
 
 const getProductById = async (req, res) => {
   try {
-    const product = await Product.findById(req.params.id);
+    const product = await productService.getProductById(req.params.id);
     if (!product) {
       return res.status(404).json({ error: { message: "Sản phẩm không tồn tại" } });
     }
@@ -49,7 +38,7 @@ const getProductById = async (req, res) => {
 
 const deleteProductById = async (req, res) => {
   try {
-    const product = await Product.findByIdAndDelete(req.params.id);
+    const product = await productService.deleteProductById(req.params.id);
     if (!product) {
       return res.status(404).json({ error: { message: "Sản phẩm không tồn tại" } });
     }
@@ -62,30 +51,11 @@ const deleteProductById = async (req, res) => {
 
 const updateProductById = async (req, res) => {
   try {
-    const setting = await Setting.findOne();
-    if (!setting) {
-      return res.status(500).json({ error: { message: "Không tìm thấy cài đặt hệ thống." } });
+    const result = await productService.updateProductById(req.params.id, req.body);
+    if (result?.error) {
+      return res.status(result.error === "Sản phẩm không tồn tại" ? 404 : 400).json({ error: { message: result.error } });
     }
-
-    const { min_product_price, max_product_price } = setting;
-    const price = req.body.price;
-    if (price < min_product_price || price > max_product_price) {
-      return res.status(400).json({
-        error: { message: `Giá sản phẩm phải nằm trong khoảng ${min_product_price} đến ${max_product_price} VND` }
-      });
-    }
-
-    const product = await Product.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      { new: true }
-    );
-
-    if (!product) {
-      return res.status(404).json({ error: { message: "Sản phẩm không tồn tại" } });
-    }
-
-    return res.status(200).json(product);
+    return res.status(200).json(result);
   } catch (error) {
     console.error("Lỗi server:", error);
     return res.status(500).json({ error: { message: "Lỗi server" } });

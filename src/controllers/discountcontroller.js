@@ -1,8 +1,8 @@
-const Discount = require("../models/discount");
+const discountservice = require("../services/discount.service");
 
 const createDiscount = async (req, res) => {
     try {
-        const discount = await Discount.create(req.body);
+        const discount = await discountservice.createDiscount(req.body);
         return res.status(201).json(discount);
     } catch (error) {
         console.error("Lỗi server:", error);
@@ -12,7 +12,7 @@ const createDiscount = async (req, res) => {
 
 const getAllDiscounts = async (req, res) => {
     try {
-        const discounts = await Discount.find();
+        const discounts = await discountservice.getAllDiscounts();
         return res.status(200).json(discounts);
     } catch (error) {
         console.error("Lỗi server:", error);
@@ -22,7 +22,7 @@ const getAllDiscounts = async (req, res) => {
 
 const getDiscountById = async (req, res) => {
     try {
-        const discount = await Discount.findById(req.params.id);
+        const discount = await discountservice.getDiscountById(req.params.id);
         if (!discount) {
             return res.status(404).json({ error: { message: "Khuyến mãi không tồn tại" } });
         }
@@ -36,7 +36,7 @@ const getDiscountById = async (req, res) => {
 const getDiscountByCode = async (req, res) => {
     try {
         const { code } = req.params;
-        const discount = await Discount.findOne({ code });
+        const discount = await discountservice.getDiscountByCode(code);
 
         if (!discount) {
             return res.status(404).json({ error: { message: "Khuyến mãi không tồn tại" } });
@@ -51,7 +51,7 @@ const getDiscountByCode = async (req, res) => {
 
 const deleteDiscountById = async (req, res) => {
     try {
-        const discount = await Discount.findByIdAndDelete(req.params.id);
+        const discount = await discountservice.deleteDiscountById(req.params.id);
         if (!discount) {
             return res.status(404).json({ error: { message: "Khuyến mãi không tồn tại" } });
         }
@@ -64,7 +64,7 @@ const deleteDiscountById = async (req, res) => {
 
 const updateDiscountById = async (req, res) => {
     try {
-        const discount = await Discount.findByIdAndUpdate(req.params.id, req.body, { new: true });
+        const discount = await discountservice.updateDiscountById(req.params.id, req.body);
         if (!discount) {
             return res.status(404).json({ error: { message: "Khuyến mãi không tồn tại" } });
         }

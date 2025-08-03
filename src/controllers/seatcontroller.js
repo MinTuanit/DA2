@@ -1,10 +1,8 @@
-const Seat = require("../models/seat");
-const Showtime = require("../models/showtime");
-const Ticket = require("../models/ticket");
+const seatService = require('../services/seat.service');
 
 const createSeat = async (req, res) => {
     try {
-        const seat = await Seat.create(req.body);
+        const seat = await seatService.createSeat(req.body);
         return res.status(201).json(seat);
     } catch (error) {
         console.error("Lỗi server:", error);
@@ -14,13 +12,11 @@ const createSeat = async (req, res) => {
 
 const createSeats = async (req, res) => {
     try {
-        const seatsData = req.body;
-        if (!Array.isArray(seatsData)) {
-            return res.status(400).json({ error: { message: "Dữ liệu gửi lên phải là mảng các ghế" } });
+        const result = await seatService.createSeats(req.body);
+        if (result?.error) {
+            return res.status(400).json({ error: { message: result.error } });
         }
-
-        const seats = await Seat.insertMany(seatsData);
-        return res.status(201).json(seats);
+        return res.status(201).json(result);
     } catch (error) {
         console.error("Lỗi server:", error);
         return res.status(500).json({ error: { message: "Lỗi server" } });
@@ -29,15 +25,11 @@ const createSeats = async (req, res) => {
 
 const resetSeats = async (req, res) => {
     try {
-        const { room_id, seats } = req.body;
-        if (!room_id || !Array.isArray(seats)) {
-            return res.status(400).json({ error: { message: "Thiếu dữ liệu room_id hoặc danh sách ghế" } });
+        const result = await seatService.resetSeats(req.body);
+        if (result?.error) {
+            return res.status(400).json({ error: { message: result.error } });
         }
-
-        await Seat.deleteMany({ room_id });
-        const newSeats = await Seat.insertMany(seats);
-
-        return res.status(201).json(newSeats);
+        return res.status(201).json(result);
     } catch (error) {
         console.error("Lỗi reset ghế:", error);
         return res.status(500).json({ error: { message: "Lỗi server" } });
@@ -46,7 +38,7 @@ const resetSeats = async (req, res) => {
 
 const getAllSeats = async (req, res) => {
     try {
-        const seats = await Seat.find();
+        const seats = await seatService.getAllSeats();
         return res.status(200).json(seats);
     } catch (error) {
         console.error("Lỗi server:", error);
@@ -56,7 +48,7 @@ const getAllSeats = async (req, res) => {
 
 const getSeatById = async (req, res) => {
     try {
-        const seat = await Seat.findById(req.params.id);
+        const seat = await seatService.getSeatById(req.params.id);
         if (!seat) {
             return res.status(404).json({ error: { message: "Ghế không tồn tại" } });
         }
@@ -69,7 +61,7 @@ const getSeatById = async (req, res) => {
 
 const getSeatByRoomId = async (req, res) => {
     try {
-        const seats = await Seat.find({ room_id: req.params.roomid });
+        const seats = await seatService.getSeatByRoomId(req.params.roomid);
         if (!seats.length) {
             return res.status(404).json({ error: { message: "Không có ghế trong phòng này" } });
         }
@@ -82,22 +74,11 @@ const getSeatByRoomId = async (req, res) => {
 
 const getSeatByShowtimeId = async (req, res) => {
     try {
-        const { showtimeid } = req.params;
-        const showtime = await Showtime.findById(showtimeid);
-        if (!showtime) {
-            return res.status(404).json({ error: { message: "Không tìm thấy lịch chiếu phim tương ứng" } });
+        const result = await seatService.getSeatByShowtimeId(req.params.showtimeid);
+        if (result?.error) {
+            return res.status(404).json({ error: { message: result.error } });
         }
-
-        const seats = await Seat.find({ room_id: showtime.room_id });
-        const bookedTickets = await Ticket.find({ showtime_id: showtimeid }).select("seat_id");
-        const bookedSeatIds = bookedTickets.map(ticket => ticket.seat_id.toString());
-
-        const seatWithAvailability = seats.map(seat => ({
-            ...seat.toObject(),
-            available: !bookedSeatIds.includes(seat._id.toString())
-        }));
-
-        return res.status(200).json({ data: seatWithAvailability });
+        return res.status(200).json({ data: result });
     } catch (error) {
         console.error("Lỗi server:", error);
         return res.status(500).json({ error: { message: "Lỗi server" } });
@@ -106,7 +87,7 @@ const getSeatByShowtimeId = async (req, res) => {
 
 const deleteSeatById = async (req, res) => {
     try {
-        const seat = await Seat.findByIdAndDelete(req.params.id);
+        const seat = await seatService.deleteSeatById(req.params.id);
         if (!seat) {
             return res.status(404).json({ error: { message: "Ghế không tồn tại" } });
         }
@@ -119,7 +100,7 @@ const deleteSeatById = async (req, res) => {
 
 const deleteSeatByRoomId = async (req, res) => {
     try {
-        const result = await Seat.deleteMany({ room_id: req.params.roomid });
+        const result = await seatService.deleteSeatByRoomId(req.params.roomid);
         if (result.deletedCount === 0) {
             return res.status(404).json({ error: { message: "Không có ghế nào được tìm thấy để xóa" } });
         }
@@ -132,7 +113,7 @@ const deleteSeatByRoomId = async (req, res) => {
 
 const updateSeatById = async (req, res) => {
     try {
-        const seat = await Seat.findByIdAndUpdate(req.params.id, req.body, { new: true });
+        const seat = await seatService.updateSeatById(req.params.id, req.body);
         if (!seat) {
             return res.status(404).json({ error: { message: "Ghế không tồn tại" } });
         }

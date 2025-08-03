@@ -1,10 +1,8 @@
-const Cinema = require("../models/cinema");
-const Employee = require("../models/employee");
-const Room = require("../models/room");
+const cinemaservice = require("../services/cinema.service");
 
 const createCinema = async (req, res) => {
   try {
-    const cinema = await Cinema.create(req.body);
+    const cinema = await cinemaservice.createCinema(req.body);
     return res.status(201).json(cinema);
   } catch (error) {
     console.error("Lỗi server:", error);
@@ -14,7 +12,7 @@ const createCinema = async (req, res) => {
 
 const getAllCinemas = async (req, res) => {
   try {
-    const cinemas = await Cinema.find();
+    const cinemas = await cinemaservice.getAllCinemas();
     return res.status(200).json(cinemas);
   } catch (error) {
     console.error("Lỗi server:", error);
@@ -24,7 +22,7 @@ const getAllCinemas = async (req, res) => {
 
 const getCinemaById = async (req, res) => {
   try {
-    const cinema = await Cinema.findById(req.params.id);
+    const cinema = await cinemaservice.getCinemaById(req.params.id);
     if (!cinema) {
       return res.status(404).json({ error: { message: "Không tìm thấy rạp chiếu phim." } });
     }
@@ -35,29 +33,22 @@ const getCinemaById = async (req, res) => {
   }
 };
 
-const getEmployeeAndRoomById = async (req, res) => {
+const updateCinemaById = async (req, res) => {
   try {
-    const cinema_id = req.params.cinemaid;
-
-    const [employeeCount, roomCount] = await Promise.all([
-      Employee.countDocuments({ cinema_id }),
-      Room.countDocuments({ cinema_id })
-    ]);
-
-    return res.status(200).json({
-      cinema_id,
-      employeeCount,
-      roomCount
-    });
+    const cinema = await cinemaservice.updateCinemaById(req.params.id, req.body);
+    if (!cinema) {
+      return res.status(404).json({ error: { message: "Rạp chiếu phim không tồn tại" } });
+    }
+    return res.status(200).json(cinema);
   } catch (error) {
     console.error("Lỗi server:", error);
-    return res.status(500).json({ error: { message: "Lỗi server!" } });
+    return res.status(500).json({ error: { message: "Lỗi Server" } });
   }
 };
 
 const deleteCinemaById = async (req, res) => {
   try {
-    const cinema = await Cinema.findByIdAndDelete(req.params.id);
+    const cinema = await cinemaservice.deleteCinemaById(req.params.id);
     if (!cinema) {
       return res.status(404).json({ error: { message: "Rạp chiếu phim không tồn tại" } });
     }
@@ -68,16 +59,13 @@ const deleteCinemaById = async (req, res) => {
   }
 };
 
-const updateCinemaById = async (req, res) => {
+const getEmployeeAndRoomById = async (req, res) => {
   try {
-    const cinema = await Cinema.findByIdAndUpdate(req.params.id, req.body, { new: true });
-    if (!cinema) {
-      return res.status(404).json({ error: { message: "Rạp chiếu phim không tồn tại" } });
-    }
-    return res.status(200).json(cinema);
+    const result = await cinemaservice.getEmployeeAndRoomById(req.params.cinemaid);
+    return res.status(200).json(result);
   } catch (error) {
     console.error("Lỗi server:", error);
-    return res.status(500).json({ error: { message: "Lỗi Server" } });
+    return res.status(500).json({ error: { message: "Lỗi server!" } });
   }
 };
 
