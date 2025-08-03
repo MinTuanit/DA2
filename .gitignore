@@ -2,7 +2,6 @@
 node_modules/
 *node_modules
 /package-lock.json
-/package.json
 yarn.lock
 # Optional npm cache directory
 .npm
