@@ -33,3 +33,10 @@
 # run 
     npm install
     npm start
+    
+---
+
+## Liên hệ / Góp ý
+
+Nếu bạn có ý tưởng cải tiến, báo lỗi hoặc muốn tích hợp thêm tính năng (như voice search, scheduling, loyalty…), cứ mở Issues
+ hoặc gửi pull request nhé!
