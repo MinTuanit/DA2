@@ -1,4 +1,4 @@
-# This is server for project DA1
+# This is server for project DA2
 
 # config .env
     PORT=port_for_backend
