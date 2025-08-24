@@ -10,6 +10,7 @@ const allRoles = {
         "getSeat",
         "getShowTime",
         "getUser",
+        "getReview",
     ],
     employee: [
         "getUserByEmail",
@@ -22,7 +23,8 @@ const allRoles = {
         "getSeat",
         "getShowTime",
         "getUser",
-        "getOrderBycode"
+        "getOrderBycode",
+        "getReview",
     ],
     admin: [
         "getUserByEmail",
@@ -35,6 +37,7 @@ const allRoles = {
         "getSeat",
         "getShowTime",
         "getUser",
+        "getReview",
         "getOrderBycode",
         "manageCinema",
         "manageDiscount",
@@ -44,7 +47,8 @@ const allRoles = {
         "manageRoom",
         "manageSeat",
         "manageShowTime",
-        "manageUser"
+        "manageUser",
+        "managerReview"
     ],
 };
 
