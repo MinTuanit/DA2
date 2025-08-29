@@ -13,7 +13,6 @@ const showtimeRoute = require("./showtime");
 const ticketRoute = require("./ticket");
 const orderRoute = require("./order");
 const orderproductRoute = require("./orderproductdetail");
-const paymentRoute = require("./payment");
 const settingRoute = require("./setting");
 const revenueRoute = require("./revenue");
 const chatbotRoute = require("./chatbot");
@@ -77,10 +76,6 @@ const defaultRoutes = [
   {
     path: "/orderproduct",
     route: orderproductRoute,
-  },
-  {
-    path: "/payment",
-    route: paymentRoute,
   },
   {
     path: "/setting",

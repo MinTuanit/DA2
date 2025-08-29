@@ -4,7 +4,7 @@ const OrderSchema = new mongoose.Schema(
   {
     ordercode: {
       type: String,
-      require: true,
+      required: true,
       trim: true
     },
     total_price: {
@@ -13,12 +13,8 @@ const OrderSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: [
-        'pending',
-        'completed',
-        'cancelled'
-      ],
-      default: 'pending'
+      enum: ["pending", "completed", "cancelled"],
+      default: "pending"
     },
     ordered_at: {
       type: Date,
@@ -26,11 +22,30 @@ const OrderSchema = new mongoose.Schema(
     },
     user_id: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Users',
-      required: false, // không bắt buộc
+      ref: "Users",
       default: null
     },
-  }
+
+    amount: {
+      type: Number,
+      required: true
+    },
+    payment_method: {
+      type: String,
+      enum: ["momo", "banking", "visa/mastercard", "cash"],
+      required: true
+    },
+    paid_at: {
+      type: Date,
+      default: Date.now
+    },
+    discount_id: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Discounts",
+      default: null
+    }
+  },
+  { timestamps: true }
 );
 
 const Order = mongoose.model("Orders", OrderSchema);

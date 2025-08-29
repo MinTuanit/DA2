@@ -132,7 +132,7 @@ module.exports = function generateOrderHtml({ ordercode, ordered_at, total_price
                     <ul class="ticket-products">
                         ${
                             populatedProducts.length > 0
-                                ? populatedProducts.map(p => `<li>${p.product_id?.name} x${p.quantity}</li>`).join('')
+                                ? populatedProducts.map(p => `<li>${p.name} x${p.quantity}</li>`).join('')
                                 : '<li>Không có</li>'
                         }
                     </ul>

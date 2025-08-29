@@ -1,4 +1,4 @@
-const Payment = require("../models/payment");
+const Order = require("../models/order");
 const Ticket = require("../models/ticket");
 const OrderProductDetail = require("../models/orderproductdetail");
 const Movie = require("../models/movie");
@@ -6,8 +6,8 @@ const Product = require("../models/product");
 const mongoose = require("mongoose");
 
 async function getAllRevenue() {
-  const payments = await Payment.find();
-  const total_revenue = payments.reduce((sum, p) => sum + p.amount, 0);
+  const orders = await Order.find();
+  const total_revenue = orders.reduce((sum, p) => sum + p.amount, 0);
   return { total_revenue };
 }
 
@@ -32,8 +32,8 @@ async function getAllRevenueReport({ startDate, endDate }) {
   const ticketRevenue = validTickets.reduce((sum, t) => sum + t.showtime_id.price, 0);
   const ticketCount = validTickets.length;
 
-  const payments = await Payment.find({ paid_at: { $gte: start, $lte: end } });
-  const totalRevenue = payments.reduce((sum, p) => sum + p.amount, 0);
+  const orders = await Order.find({ paid_at: { $gte: start, $lte: end } });
+  const totalRevenue = orders.reduce((sum, p) => sum + p.amount, 0);
   const productRevenue = totalRevenue - ticketRevenue;
 
   const orderProductDetails = await OrderProductDetail.find()

@@ -1,3 +1,5 @@
+const Order = require("../models/order");
+
 const generateUniqueOrderCode = async () => {
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
   let code;
