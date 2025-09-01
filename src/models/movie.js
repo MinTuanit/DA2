@@ -44,7 +44,8 @@ const MovieSchema = new mongoose.Schema(
       trim: true
     },
     age_limit: {
-      type: Number
+      type: Number,
+      required: false
     },
     trailer_url: {
       type: String,
