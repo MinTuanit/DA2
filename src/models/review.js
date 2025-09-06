@@ -26,6 +26,10 @@ const ReviewSchema = new mongoose.Schema(
     created_at: {
       type: Date,
       default: Date.now
+    },
+    isVerify: {
+      type: Boolean,
+      default: false
     }
   }
 );
