@@ -27,16 +27,6 @@ const createOrders = async (req, res) => {
     }
 };
 
-const getTicketAndProductByOrderId = async (req, res) => {
-    try {
-        const result = await orderService.getTicketAndProductByOrderId(req.params.orderid);
-        return res.json(result);
-    } catch (error) {
-        console.error("Lỗi khi lấy thông tin hóa đơn:", error);
-        return res.status(500).json({ error: { message: "Lỗi Server" } });
-    }
-};
-
 const getAllOrders = async (req, res) => {
     try {
         const ordersWithDetails = await orderService.getAllOrders();
@@ -101,19 +91,6 @@ const getOrderByUserId = async (req, res) => {
     }
 };
 
-const getOrderWithUserInfo = async (req, res) => {
-    try {
-        const result = await orderService.getOrderWithUserInfo(req.params.orderid);
-        if (!result) {
-            return res.status(404).json({ error: { message: "Hóa đơn không tồn tại" } });
-        }
-        return res.json(result);
-    } catch (err) {
-        console.error(err);
-        return res.status(500).json({ error: { message: "Lỗi server" } });
-    }
-};
-
 const deleteOrderById = async (req, res) => {
     try {
         const order = await orderService.deleteOrderById(req.params.id);
@@ -155,11 +132,9 @@ module.exports = {
     createOrders,
     getOrderById,
     getAllOrders,
-    getTicketAndProductByOrderId,
     getOrderByCode,
     getOrderWithInfoById,
     getOrderByUserId,
-    getOrderWithUserInfo,
     deleteOrderById,
     deleteOrderByUserId,
     updateOrderById

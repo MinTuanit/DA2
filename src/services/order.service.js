@@ -174,14 +174,6 @@ async function createOrders(data) {
   }
 }
 
-async function getTicketAndProductByOrderId(order_id) {
-  const [ticketCount, productCount] = await Promise.all([
-    Ticket.countDocuments({ order_id }),
-    OrderProductDetail.countDocuments({ order_id })
-  ]);
-  return { order_id, ticketCount, productCount };
-}
-
 async function getAllOrders() {
   const orders = await Order.find()
     .populate({ path: "discount_id", select: "code" })
@@ -489,39 +481,6 @@ async function getOrderByUserId(userId) {
   return detailedOrders;
 }
 
-async function getOrderWithUserInfo(order_id) {
-  const order = await Order.findById(order_id)
-    .populate({
-      path: 'user_id',
-      select: 'full_name email dateOfBirth cccd phone'
-    })
-    .lean();
-
-  if (!order) return null;
-
-  return {
-    _id: order._id,
-    ordercode: order.ordercode,
-    total_price: order.total_price,
-    status: order.status,
-    ordered_at: order.ordered_at,
-    payment_method: order.payment_method,
-    amount: order.amount,
-    paid_at: order.paid_at,
-    discount_id: order.discount_id,
-    user: order.user_id
-      ? {
-        user_id: order.user_id._id,
-        full_name: order.user_id.full_name,
-        email: order.user_id.email,
-        dateOfBirth: order.user_id.dateOfBirth,
-        cccd: order.user_id.cccd,
-        phone: order.user_id.phone,
-      }
-      : null
-  };
-}
-
 async function deleteOrderById(id) {
   const order = await Order.findByIdAndDelete(id);
   return order;
@@ -623,18 +582,15 @@ async function updateOrderById(orderId, body) {
   }
 }
 
-
 module.exports = {
   createOrder,
   createOrders,
   getOrderById,
   getAllOrders,
-  getTicketAndProductByOrderId,
   getOrderById,
   getOrderByCode,
   getOrderWithInfoById,
   getOrderByUserId,
-  getOrderWithUserInfo,
   deleteOrderById,
   deleteOrderByUserId,
   updateOrderById

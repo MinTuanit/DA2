@@ -10,16 +10,6 @@ router.get(
 );
 
 router.get(
-  "/ticketandproduct/:orderid",
-  ordercontroller.getTicketAndProductByOrderId
-);
-
-router.get(
-  "/userinfo/:orderid",
-  ordercontroller.getOrderWithUserInfo
-);
-
-router.get(
   "/user/:userid",
   ordercontroller.getOrderByUserId
 );
