@@ -9,21 +9,21 @@ async function createEmployee(data) {
   } = data;
 
   if (await User.isEmailTaken(email)) {
-    return { error: "Email đã tồn tại, vui lòng chọn email khác!" };
+    return { error: "Email already exists, please choose another email!" };
   }
   if (await User.isPhoneTaken(phone)) {
-    return { error: "Số điện thoại đã tồn tại" };
+    return { error: "Phone number already exists!" };
   }
   if (await User.isCccdTaken(cccd)) {
-    return { error: "CCCD đã tồn tại" };
+    return { error: "CCCD already exists!" };
   }
   if (!password.match(/\d/) || !password.match(/[a-zA-Z]/)) {
-    return { error: "Mật khẩu phải chứa ít nhất 1 số và 1 chữ cái." };
+    return { error: "Password must contain at least 1 number and 1 letter!" };
   }
 
   const setting = await Setting.findOne();
   if (!setting) {
-    return { error: "Không tìm thấy cài đặt hệ thống." };
+    return { error: "System settings not found!" };
   }
   const { employee_min_age, employee_max_age } = setting;
   const birthDate = new Date(dateOfBirth);
@@ -33,7 +33,7 @@ async function createEmployee(data) {
   if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) age--;
 
   if (age < employee_min_age || age > employee_max_age) {
-    return { error: `Tuổi nhân viên phải nằm trong khoảng từ ${employee_min_age} đến ${employee_max_age}.` };
+    return { error: `Employee age must be between ${employee_min_age} and ${employee_max_age} years old.` };
   }
 
   const employee = await Employee.create({
@@ -102,7 +102,7 @@ async function updateEmployeeById(id, data) {
 
   const setting = await Setting.findOne();
   if (!setting) {
-    return { error: "Không tìm thấy cài đặt hệ thống." };
+    return { error: "System settings not found!" };
   }
   const { employee_min_age, employee_max_age } = setting;
   const birthDate = new Date(dateOfBirth);
@@ -112,7 +112,7 @@ async function updateEmployeeById(id, data) {
   if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) age--;
 
   if (age < employee_min_age || age > employee_max_age) {
-    return { error: `Tuổi nhân viên phải nằm trong khoảng từ ${employee_min_age} đến ${employee_max_age}.` };
+    return { error: `Employee age must be between ${employee_min_age} and ${employee_max_age} years old.` };
   }
 
   const employee = await Employee.findById(id);

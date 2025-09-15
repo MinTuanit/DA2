@@ -4,12 +4,12 @@ const Setting = require("../models/constraint");
 async function createProduct(data) {
   const setting = await Setting.findOne();
   if (!setting) {
-    return { error: "Không tìm thấy cài đặt hệ thống." };
+    return { error: "System settings not found!" };
   }
   const { min_product_price, max_product_price } = setting;
   const price = data.price;
   if (price < min_product_price || price > max_product_price) {
-    return { error: `Giá sản phẩm phải nằm trong khoảng ${min_product_price} đến ${max_product_price} VND` };
+    return { error: `Product price must be between ${min_product_price} and ${max_product_price} VND` };
   }
   const product = await Product.create(data);
   return product;
@@ -30,16 +30,16 @@ async function deleteProductById(id) {
 async function updateProductById(id, data) {
   const setting = await Setting.findOne();
   if (!setting) {
-    return { error: "Không tìm thấy cài đặt hệ thống." };
+    return { error: "System settings not found!" };
   }
   const { min_product_price, max_product_price } = setting;
   const price = data.price;
   if (price < min_product_price || price > max_product_price) {
-    return { error: `Giá sản phẩm phải nằm trong khoảng ${min_product_price} đến ${max_product_price} VND` };
+    return { error: `Product price must be between ${min_product_price} and ${max_product_price} VND` };
   }
   const product = await Product.findByIdAndUpdate(id, data, { new: true });
   if (!product) {
-    return { error: "Sản phẩm không tồn tại" };
+    return { error: "Product not found!" };
   }
   return product;
 }

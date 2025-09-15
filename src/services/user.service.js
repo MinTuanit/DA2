@@ -40,7 +40,7 @@ async function getUserByRole(role) {
   }
   const users = await User.find({ role });
   if (users.length === 0) {
-    return { error: "Không tìm thấy người dùng với vai trò: " + role };
+    return { error: "No user found with role: " + role };
   }
   const usersWithCredit = await Promise.all(users.map(async user => {
     const orders = await Order.find({
@@ -66,30 +66,30 @@ async function updateUserById(id, data) {
   if (email) {
     const existingEmail = await User.findOne({ email });
     if (existingEmail && existingEmail._id.toString() !== id) {
-      return { error: "Email đã tồn tại, vui lòng chọn email khác!" };
+      return { error: "Email already exists, please choose another email!" };
     }
   }
   if (phone) {
     const existingPhone = await User.findOne({ phone });
     if (existingPhone && existingPhone._id.toString() !== id) {
-      return { error: "Số điện thoại đã tồn tại" };
+      return { error: "Phone number already exists!" };
     }
   }
   if (cccd) {
     const existingCccd = await User.findOne({ cccd });
     if (existingCccd && existingCccd._id.toString() !== id) {
-      return { error: "CCCD đã tồn tại" };
+      return { error: "CCCD already exists!" };
     }
   }
   if (password) {
     if (password.length < 8 || !password.match(/\d/) || !password.match(/[a-zA-Z]/)) {
-      return { error: "Mật khẩu phải chứa ít nhất 8 ký tự và chứa 1 số và 1 chữ cái." };
+      return { error: "Password must be at least 8 characters and contain 1 number and 1 letter!" };
     }
     data.password = await bcrypt.hash(password, 8);
   }
   const updatedUser = await User.findByIdAndUpdate(id, data, { new: true });
   if (!updatedUser) {
-    return { error: "Không tìm thấy tài khoản có id: " + id };
+    return { error: "User not found!" };
   }
   return { user: updatedUser };
 }

@@ -4,7 +4,7 @@ const createSetting = async (req, res) => {
     try {
         const existing = await Constraint.findOne();
         if (existing) {
-            return res.status(400).json({ error: { message: "Cài đặt đã tồn tại. Hãy dùng API cập nhật." } });
+            return res.status(400).json({ error: { message: "The setting already exists. Please use API to update." } });
         }
 
         const constraint = new Constraint(req.body);
@@ -12,8 +12,8 @@ const createSetting = async (req, res) => {
 
         return res.status(201).json(constraint);
     } catch (error) {
-        console.error("Lỗi khi tạo setting:", error);
-        return res.status(500).json({ error: { message: "Lỗi server" } });
+        console.error("Server Error: ", error);
+        return res.status(500).json({ error: { message: "Server Error!" } });
     }
 };
 
@@ -21,13 +21,13 @@ const getSetting = async (req, res) => {
     try {
         const constraint = await Constraint.findOne();
         if (!constraint) {
-            return res.status(404).json({ error: { message: "Chưa có cài đặt hệ thống." } });
+            return res.status(404).json({ error: { message: "System settings not found!." } });
         }
 
         return res.status(200).json(constraint);
     } catch (error) {
-        console.error("Lỗi khi lấy setting:", error);
-        return res.status(500).json({ error: { message: "Lỗi server" } });
+        console.error("Server Error: ", error);
+        return res.status(500).json({ error: { message: "Server Error!" } });
     }
 };
 
@@ -35,7 +35,7 @@ const updateSetting = async (req, res) => {
     try {
         const constraint = await Constraint.findOne();
         if (!constraint) {
-            return res.status(404).json({ error: { message: "Chưa có cài đặt để cập nhật." } });
+            return res.status(404).json({ error: { message: "There are no settings to update!" } });
         }
 
         Object.assign(constraint, req.body);
@@ -43,8 +43,8 @@ const updateSetting = async (req, res) => {
 
         return res.status(200).json(constraint);
     } catch (error) {
-        console.error("Lỗi khi cập nhật setting:", error);
-        return res.status(500).json({ error: { message: "Lỗi server" } });
+        console.error("Server Error: ", error);
+        return res.status(500).json({ error: { message: "Server Error!" } });
     }
 };
 

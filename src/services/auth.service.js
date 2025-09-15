@@ -32,22 +32,22 @@ async function login(email, password) {
 }
 
 function logout(refreshToken) {
-  if (!refreshToken) return { error: "Thiếu refresh token!" };
-  if (blacklist.has(refreshToken)) return { error: "Token đã bị vô hiệu hóa!" };
+  if (!refreshToken) return { error: "Refresh token required!" };
+  if (blacklist.has(refreshToken)) return { error: "Token has been disabled." };
   blacklist.add(refreshToken);
-  return { message: "Đăng xuất thành công!" };
+  return { message: "Log out successfully." };
 }
 
 function refreshtoken(refreshToken) {
-  if (!refreshToken) return { error: "Không có refresh token!" };
+  if (!refreshToken) return { error: "Refresh token required!" };
   const newAccessToken = tokenservice.refreshAccessToken(refreshToken);
-  if (!newAccessToken) return { error: "Refresh token không hợp lệ hoặc đã hết hạn!" };
+  if (!newAccessToken) return { error: "Refresh token is invalid or expired!" };
   return { accessToken: newAccessToken };
 }
 
 async function forgotPassword(email) {
   const user = await User.findOne({ email });
-  if (!user) return { error: "Không tìm thấy người dùng" };
+  if (!user) return { error: "User not found!" };
   const token = crypto.randomBytes(32).toString("hex");
   const expireTime = Date.now() + 15 * 60 * 1000;
   user.resetPasswordToken = token;
@@ -60,7 +60,7 @@ async function forgotPassword(email) {
     subject: "Yêu cầu đặt lại mật khẩu",
     html: `<p>Click vào link sau để đặt lại mật khẩu:</p><a href="${resetLink}">${resetLink}</a>`,
   });
-  return { message: "Đã gửi email đặt lại mật khẩu" };
+  return { message: "Send Email to reset password successfully." };
 }
 
 async function resetPassword(token, newPassword) {
@@ -68,12 +68,12 @@ async function resetPassword(token, newPassword) {
     resetPasswordToken: token,
     resetPasswordExpires: { $gt: Date.now() },
   });
-  if (!user) return { error: "Token không hợp lệ hoặc đã hết hạn" };
+  if (!user) return { error: "Refresh token is invalid or expired!" };
   user.password = newPassword;
   user.resetPasswordToken = undefined;
   user.resetPasswordExpires = undefined;
   await user.save();
-  return { message: "Đặt lại mật khẩu thành công" };
+  return { message: "Reset password successfully." };
 }
 
 module.exports = {

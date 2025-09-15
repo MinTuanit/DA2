@@ -76,7 +76,7 @@ const chatbot = async (req, res) => {
         });
     } catch (err) {
         console.error(err.response?.data || err.message);
-        return res.status(500).json({ error: 'Lỗi xử lý yêu cầu AI' });
+        return res.status(500).json({ error: 'Server Error!' });
     }
 };
 

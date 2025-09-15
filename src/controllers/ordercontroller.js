@@ -6,8 +6,8 @@ const createOrder = async (req, res) => {
         const newOrder = await orderService.createOrder(req.body);
         return res.status(201).json(newOrder);
     } catch (error) {
-        console.error("Lỗi tạo đơn hàng:", error);
-        return res.status(500).json({ error: { message: "Lỗi Server" } });
+        console.error("Server Error: ", error);
+        return res.status(500).json({ error: { message: "Server Error!" } });
     }
 };
 
@@ -22,8 +22,8 @@ const createOrders = async (req, res) => {
         res.setHeader('Content-Disposition', `inline; filename=hoadon_${result.ordercode}.pdf`);
         res.end(result.pdfBuffer);
     } catch (error) {
-        console.error("Lỗi khi tạo hóa đơn:", error);
-        return res.status(500).json({ error: { message: "Lỗi khi tạo hóa đơn" } });
+        console.error("Server Error: ", error);
+        return res.status(500).json({ error: { message: "Server Error!" } });
     }
 };
 
@@ -32,8 +32,7 @@ const getAllOrders = async (req, res) => {
         const ordersWithDetails = await orderService.getAllOrders();
         return res.status(200).json(ordersWithDetails);
     } catch (error) {
-        console.error("Lỗi khi lấy danh sách hóa đơn:", error);
-        return res.status(500).json({ error: { message: "Lỗi Server" } });
+        return res.status(500).json({ error: { message: "Server Error!" } });
     }
 };
 
@@ -41,12 +40,12 @@ const getOrderById = async (req, res) => {
     try {
         const orderDetail = await orderService.getOrderById(req.params.id);
         if (!orderDetail) {
-            return res.status(404).json({ error: { message: 'Không tìm thấy đơn hàng' } });
+            return res.status(404).json({ error: { message: "Order not found!" } });
         }
         return res.status(200).json(orderDetail);
     } catch (error) {
-        console.error("Lỗi khi lấy chi tiết hóa đơn:", error);
-        return res.status(500).json({ error: { message: "Lỗi Server" } });
+        console.error("Server Error :", error);
+        return res.status(500).json({ error: { message: "Server Error!" } });
     }
 };
 
@@ -54,14 +53,14 @@ const getOrderByCode = async (req, res) => {
     try {
         const result = await orderService.getOrderByCode(req.params.ordercode);
         if (!result) {
-            return res.status(404).json({ error: { message: "Hóa đơn không tồn tại" } });
+            return res.status(404).json({ error: { message: "Order not found!" } });
         }
         res.setHeader('Content-Type', 'application/pdf');
         res.setHeader('Content-Disposition', `inline; filename=hoadon_${result.ordercode}.pdf`);
         res.end(result.pdfBuffer);
     } catch (error) {
-        console.error("Lỗi khi tạo hóa đơn:", error);
-        return res.status(500).json({ error: { message: "Lỗi khi tạo hóa đơn" } });
+        console.error("Server Error :", error);
+        return res.status(500).json({ error: { message: "Server Error!" } });
     }
 };
 
@@ -69,12 +68,12 @@ const getOrderWithInfoById = async (req, res) => {
     try {
         const result = await orderService.getOrderWithInfoById(req.params.id);
         if (!result) {
-            return res.status(404).json({ error: { message: 'Hóa đơn không tồn tại' } });
+            return res.status(404).json({ error: { message: 'Order not found!' } });
         }
         return res.status(200).json(result);
     } catch (error) {
-        console.error("Lỗi khi lấy hóa đơn:", error);
-        return res.status(500).json({ error: { message: "Lỗi khi lấy hóa đơn" } });
+        console.error("Server Error:", error);
+        return res.status(500).json({ error: { message: "Server Error!" } });
     }
 };
 
@@ -82,12 +81,12 @@ const getOrderByUserId = async (req, res) => {
     try {
         const result = await orderService.getOrderByUserId(req.params.userid);
         if (!result) {
-            return res.status(404).json({ error: { message: "Hóa đơn không tồn tại" } });
+            return res.status(404).json({ error: { message: "Order not found!" } });
         }
         return res.status(200).json(result);
     } catch (error) {
-        console.error("Lỗi khi lấy hóa đơn theo user_id:", error);
-        return res.status(500).json({ error: { message: "Lỗi server" } });
+        console.error("Server Error :", error);
+        return res.status(500).json({ error: { message: "Server Error!" } });
     }
 };
 
@@ -95,11 +94,11 @@ const deleteOrderById = async (req, res) => {
     try {
         const order = await orderService.deleteOrderById(req.params.id);
         if (!order) {
-            return res.status(404).json({ error: { message: "Hóa đơn không tồn tại" } });
+            return res.status(404).json({ error: { message: "Order not found!" } });
         }
-        return res.status(204).json("Xóa hóa đơn thành công");
+        return res.status(204).json("Delete order successfully.");
     } catch (error) {
-        return res.status(500).json({ error: { message: "Lỗi server" } });
+        return res.status(500).json({ error: { message: "Server Error!" } });
     }
 };
 
@@ -107,23 +106,26 @@ const deleteOrderByUserId = async (req, res) => {
     try {
         const result = await orderService.deleteOrderByUserId(req.params.userid);
         if (result.deletedCount === 0) {
-            return res.status(404).json({ error: { message: "Không có hóa đơn nào được tìm thấy để xóa!" } });
+            return res.status(404).json({ error: { message: "No orders found to delete!" } });
         }
-        return res.status(200).send(`${result.deletedCount} hóa đơn đã được xóa.`);
+        return res.status(200).send(`${result.deletedCount} orders have been deleted.`);
     } catch (error) {
-        return res.status(500).json({ error: { message: "Lỗi server" } });
+        return res.status(500).json({ error: { message: "Server Error!" } });
     }
 };
 
 const updateOrderById = async (req, res) => {
     try {
         const result = await orderService.updateOrderById(req.params.id, req.body);
-        if (result?.error) {
-            return res.status(result.error === "Hóa đơn không tồn tại" ? 404 : 400).json({ error: { message: result.error } });
+
+        if (result.error) {
+            const status = result.error === "Order not found!" ? 404 : 400;
+            return res.status(status).json({ error: { message: result.error } });
         }
+
         return res.status(200).json(result);
     } catch (error) {
-        return res.status(500).json({ error: { message: "Lỗi server" } });
+        return res.status(500).json({ error: { message: "Server Error!" } });
     }
 };
 

@@ -32,7 +32,7 @@ const verifyToken = (req, res, next) => {
     const token = req.header("Authorization")?.split(" ")[1]; // Lấy token từ header
 
     if (!token) {
-        return res.status(401).json({ message: "Không có token, từ chối truy cập!" });
+        return res.status(401).json({ message: "No token, access denied!" });
     }
 
     try {
@@ -40,7 +40,7 @@ const verifyToken = (req, res, next) => {
         req.user = decoded; // Lưu thông tin user vào req
         next();
     } catch (error) {
-        return res.status(403).json({ message: "Token không hợp lệ hoặc đã hết hạn!" });
+        return res.status(403).json({ message: "Token is invalid or expired!" });
     }
 };
 

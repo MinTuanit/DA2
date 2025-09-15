@@ -14,7 +14,7 @@ async function createRoomWithSeats(data) {
         if (!cinema_id) {
             await session.abortTransaction();
             session.endSession();
-            return { error: "Thiếu trường cinema_id" };
+            return { error: "Missing cinema_id!" };
         }
         const room = new Room({
             name,
@@ -34,7 +34,7 @@ async function createRoomWithSeats(data) {
         session.endSession();
 
         return {
-            message: "Tạo phòng chiếu và ghế thành công",
+            message: "Create a successful room and seats",
             room_id: room._id,
             seats_created: seatDocs.length
         };
@@ -77,12 +77,12 @@ async function deleteRoomById(id) {
         if (!room) {
             await session.abortTransaction();
             session.endSession();
-            return { error: "Phòng chiếu không tồn tại" };
+            return { error: "Room not found!" };
         }
         await Seat.deleteMany({ room_id: id }, { session });
         await session.commitTransaction();
         session.endSession();
-        return { message: "Xóa phòng chiếu thành công" };
+        return { message: "Delete room successfully." };
     } catch (error) {
         await session.abortTransaction();
         session.endSession();
@@ -103,7 +103,7 @@ async function updateRoomWithSeatsById(id, data) {
         if (!room) {
             await session.abortTransaction();
             session.endSession();
-            return { error: "Phòng chiếu không tồn tại" };
+            return { error: "Room not found!" };
         }
         await Seat.deleteMany({ room_id: id }, { session });
         if (Array.isArray(seats) && seats.length > 0) {

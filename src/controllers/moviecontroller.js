@@ -5,8 +5,8 @@ const createMovie = async (req, res) => {
         const movie = await movieservice.createMovie(req.body);
         return res.status(201).json(movie);
     } catch (error) {
-        console.log("Lỗi server! ", error);
-        return res.status(500).json({ error: { message: "Lỗi Server" } });
+        console.log("Server Error! ", error);
+        return res.status(500).json({ error: { message: "Server Error!" } });
     }
 };
 
@@ -15,8 +15,8 @@ const getAllMovies = async (req, res) => {
         const movies = await movieservice.getAllMovies();
         return res.status(200).json(movies);
     } catch (error) {
-        console.log("Lỗi server! ", error);
-        return res.status(500).json({ error: { message: "Lỗi Server" } });
+        console.log("Server Error! ", error);
+        return res.status(500).json({ error: { message: "Server Error!" } });
     }
 };
 
@@ -24,13 +24,13 @@ const getMovieById = async (req, res) => {
     try {
         const movie = await movieservice.getMovieById(req.params.id);
         if (!movie) {
-            console.log("Phim không tồn tại!");
-            return res.status(404).json({ error: { message: "Phim không tồn tại" } });
+            console.log("Movie not found!");
+            return res.status(404).json({ error: { message: "Movie not found!" } });
         }
         return res.status(200).json(movie);
     } catch (error) {
-        console.log("Lỗi server: ", error);
-        return res.status(500).json({ error: { message: "Lỗi Server" } });
+        console.log("Server Error: ", error);
+        return res.status(500).json({ error: { message: "Server Error!" } });
     }
 };
 
@@ -39,7 +39,7 @@ const getMovieByStatus = async (req, res) => {
         let { status } = req.query;
 
         if (!status) {
-            return res.status(400).json({ error: { message: "Thiếu trạng thái phim" } });
+            return res.status(400).json({ error: { message: "Status is required!" } });
         }
 
         if (typeof status === 'string') {
@@ -50,8 +50,7 @@ const getMovieByStatus = async (req, res) => {
 
         return res.status(200).json(movies);
     } catch (error) {
-        console.error("Lỗi khi lấy phim theo trạng thái:", error);
-        return res.status(500).json({ error: { message: "Lỗi Server" } });
+        return res.status(500).json({ error: { message: "Server Error!" } });
     }
 };
 
@@ -59,13 +58,13 @@ const deleteMovieById = async (req, res) => {
     try {
         const movie = await movieservice.deleteMovieById(req.params.id);
         if (!movie) {
-            console.log("Phim không tồn tại!");
-            return res.status(404).json({ error: { message: "Phim không tồn tại" } });
+            console.log("Movie not found!");
+            return res.status(404).json({ error: { message: "Movie not found!" } });
         }
-        return res.status(200).json({ message: "Xóa phim thành công" });
+        return res.status(200).json({ message: "Delete movie successfully." });
     } catch (error) {
-        console.log("Lỗi server: ", error);
-        return res.status(500).json({ error: { message: "Lỗi Server" } });
+        console.log("Server Error: ", error);
+        return res.status(500).json({ error: { message: "Server Error!" } });
     }
 };
 
@@ -76,13 +75,13 @@ const updateMovieById = async (req, res) => {
             req.body
         );
         if (!movie) {
-            console.log("Phim không tồn tại!");
-            return res.status(404).json({ error: { message: "Phim không tồn tại" } });
+            console.log("Movie not found!");
+            return res.status(404).json({ error: { message: "Movie not found!" } });
         }
         return res.status(200).json(movie);
     } catch (error) {
-        console.log("Lỗi server: ", error);
-        return res.status(500).json({ error: { message: "Lỗi Server" } });
+        console.log("Server Error: ", error);
+        return res.status(500).json({ error: { message: "Server Error!" } });
     }
 };
 

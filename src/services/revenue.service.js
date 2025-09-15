@@ -65,10 +65,10 @@ async function getRevenueReport({ startDate, endDate, movie_id, product_id }) {
   end.setHours(23, 59, 59, 999);
 
   if (movie_id && (!mongoose.Types.ObjectId.isValid(movie_id) || !(await Movie.exists({ _id: movie_id })))) {
-    return { error: "Phim không tồn tại hoặc ID không hợp lệ" };
+    return { error: "Movie does not exist or invalid ID" };
   }
   if (product_id && (!mongoose.Types.ObjectId.isValid(product_id) || !(await Product.exists({ _id: product_id })))) {
-    return { error: "Sản phẩm không tồn tại hoặc ID không hợp lệ" };
+    return { error: "Product does not exist or invalid ID" };
   }
 
   const tickets = await Ticket.find()
@@ -156,7 +156,7 @@ async function getDailyTicketRevenueByMovie({ movie_id, startDate, endDate }) {
 async function getDailyProductSalesByProduct({ product_id, startDate, endDate }) {
   const product = await Product.findById(product_id);
   if (!product) {
-    return { error: "Không tìm thấy sản phẩm" };
+    return { error: "Product not found!" };
   }
   const price = product.price;
 

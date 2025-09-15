@@ -5,7 +5,7 @@ const register = async (req, res) => {
     try {
         await authservice.register(req, res, usercontroller.createUser);
     } catch (error) {
-        return res.status(500).json({ error: { message: "Lỗi Server: " + error.message } });
+        return res.status(500).json({ error: { message: "Server Error: " + error.message } });
     }
 };
 
@@ -13,15 +13,15 @@ const login = async (req, res) => {
     try {
         const { email, password } = req.body;
         if (!email || !password) {
-            return res.status(400).json({ error: { message: "Email và mật khẩu là bắt buộc!" } });
+            return res.status(400).json({ error: { message: "Email and password are required!" } });
         }
         const result = await authservice.login(email, password);
         if (!result) {
-            return res.status(401).json({ error: { message: "Email hoặc mật khẩu không đúng!" } });
+            return res.status(401).json({ error: { message: "Email or password is incorrect!" } });
         }
         return res.status(200).json(result);
     } catch (error) {
-        return res.status(500).json({ error: { message: "Lỗi Server: " + error.message } });
+        return res.status(500).json({ error: { message: "Server Error: " + error.message } });
     }
 };
 
@@ -34,7 +34,7 @@ const logout = (req, res) => {
         }
         return res.status(200).json({ message: result.message });
     } catch (error) {
-        return res.status(500).json({ error: { message: "Lỗi Server: " + error.message } });
+        return res.status(500).json({ error: { message: "Server Error: " + error.message } });
     }
 };
 
@@ -47,7 +47,7 @@ const refreshtoken = (req, res) => {
         }
         return res.status(200).json(result);
     } catch (error) {
-        return res.status(500).json({ error: { message: "Lỗi Server: " + error.message } });
+        return res.status(500).json({ error: { message: "Server Error: " + error.message } });
     }
 };
 
@@ -60,7 +60,7 @@ const forgotPassword = async (req, res) => {
         }
         return res.status(200).json({ message: result.message });
     } catch (error) {
-        return res.status(500).json({ error: { message: "Lỗi Server: " + error.message } });
+        return res.status(500).json({ error: { message: "Server Error: " + error.message } });
     }
 };
 
@@ -73,7 +73,7 @@ const resetPassword = async (req, res) => {
         }
         return res.status(200).json({ message: result.message });
     } catch (error) {
-        return res.status(500).json({ error: { message: "Lỗi Server: " + error.message } });
+        return res.status(500).json({ error: { message: "Server Error: " + error.message } });
     }
 };
 

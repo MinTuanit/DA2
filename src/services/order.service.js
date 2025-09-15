@@ -48,7 +48,7 @@ async function createOrders(data) {
       });
       if (existingTicket.length > 0) {
         await session.abortTransaction();
-        return { error: "Ghế đã được đặt chỗ." };
+        return { error: "Seat is reserved!" };
       }
     }
 
@@ -145,7 +145,7 @@ async function createOrders(data) {
           movieName
         });
       } catch (emailErr) {
-        console.error("Lỗi khi gửi email xác nhận:", emailErr.message);
+        console.error("Error sending confirmation email: ", emailErr.message);
       }
     }
 
@@ -500,14 +500,14 @@ async function updateOrderById(orderId, body) {
     if (!existingOrder) {
       await session.abortTransaction();
       session.endSession();
-      return { error: "Hóa đơn không tồn tại" };
+      return { error: "Order not found!" };
     }
 
     if (existingOrder.status !== "pending") {
       await session.abortTransaction();
       session.endSession();
       return {
-        error: `Không thể cập nhật đơn hàng với trạng thái "${existingOrder.status}"`,
+        error: `Unable to update order with status: "${existingOrder.status}"`,
       };
     }
 
@@ -574,7 +574,7 @@ async function updateOrderById(orderId, body) {
     await session.commitTransaction();
     session.endSession();
 
-    return { message: "Cập nhật đơn hàng thành công", order: existingOrder };
+    return { message: "Update order successfully.", order: existingOrder };
   } catch (error) {
     await session.abortTransaction();
     session.endSession();

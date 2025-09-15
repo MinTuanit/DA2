@@ -7,15 +7,15 @@ async function createShowTime(data) {
   const { movie_id, showtime, price, room_id } = data;
 
   const setting = await Setting.findOne();
-  if (!setting) return { error: "Không tìm thấy cài đặt hệ thống." };
+  if (!setting) return { error: "System settings not found!" };
 
   const { min_ticket_price, max_ticket_price, time_gap, open_time, close_time } = setting;
   if (price < min_ticket_price || price > max_ticket_price) {
-    return { error: `Giá vé phải nằm trong khoảng từ ${min_ticket_price} đến ${max_ticket_price}.` };
+    return { error: `Ticket price must be between ${min_ticket_price} and ${max_ticket_price}.` };
   }
 
   const movie = await Movie.findById(movie_id);
-  if (!movie) return { error: "Movie không tồn tại." };
+  if (!movie) return { error: "Movie not found!" };
 
   const duration = movie.duration;
   const newStart = new Date(showtime);
@@ -27,7 +27,7 @@ async function createShowTime(data) {
   if (closeTimeDate <= openTimeDate) closeTimeDate.setDate(closeTimeDate.getDate() + 1);
 
   if (newStart < openTimeDate || newEnd > closeTimeDate) {
-    return { error: `Lịch chiếu phải nằm trong khoảng từ ${open_time} đến ${close_time}` };
+    return { error: `Showtime must be between ${open_time} and ${close_time}` };
   }
 
   const existingShowtimes = await ShowTime.find({
@@ -44,7 +44,7 @@ async function createShowTime(data) {
   });
 
   if (isOverlapping) {
-    return { error: "Lịch chiếu bị trùng với lịch chiếu khác trong phòng hoặc không đủ thời gian dọn dẹp." };
+    return { error: "Showtime conflict with other schedules or there is not enough time to clean!" };
   }
 
   const newShowtime = new ShowTime({
@@ -142,15 +142,15 @@ async function updateShowTimeById(id, data) {
   const movie_id = data.movie?.movie_id || data.movie_id;
 
   const setting = await Setting.findOne();
-  if (!setting) return { error: "Không tìm thấy cài đặt hệ thống." };
+  if (!setting) return { error: "System settings not found!" };
 
   const { min_ticket_price, max_ticket_price, time_gap, open_time, close_time } = setting;
   if (price < min_ticket_price || price > max_ticket_price) {
-    return { error: `Giá vé phải nằm trong khoảng từ ${min_ticket_price} đến ${max_ticket_price}.` };
+    return { error: `Ticket price must be between ${min_ticket_price} and ${max_ticket_price}.` };
   }
 
   const movie = await Movie.findById(movie_id);
-  if (!movie) return { error: "Movie không tồn tại." };
+  if (!movie) return { error: "Movie not found!" };
 
   const duration = movie.duration;
   const newStart = new Date(showtime);
@@ -162,7 +162,7 @@ async function updateShowTimeById(id, data) {
   if (closeTimeDate <= openTimeDate) closeTimeDate.setDate(closeTimeDate.getDate() + 1);
 
   if (newStart < openTimeDate || newEnd > closeTimeDate) {
-    return { error: `Lịch chiếu phải nằm trong khoảng từ ${open_time} đến ${close_time}` };
+    return { error: `Showtime must be between ${open_time} and ${close_time}` };
   }
 
   const existingShowtimes = await ShowTime.find({
@@ -180,7 +180,7 @@ async function updateShowTimeById(id, data) {
   });
 
   if (isOverlapping) {
-    return { error: "Lịch chiếu bị trùng với lịch khác hoặc không đủ thời gian dọn dẹp." };
+    return { error: "Showtime conflict with other schedules or there is not enough time to clean!" };
   }
 
   const updated = await ShowTime.findByIdAndUpdate(

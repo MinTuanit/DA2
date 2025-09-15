@@ -8,14 +8,14 @@ async function createSeat(data) {
 
 async function createSeats(seatsData) {
   if (!Array.isArray(seatsData)) {
-    return { error: "Dữ liệu gửi lên phải là mảng các ghế" };
+    return { error: "The data sent must be an array of seats." };
   }
   return await Seat.insertMany(seatsData);
 }
 
 async function resetSeats({ room_id, seats }) {
   if (!room_id || !Array.isArray(seats)) {
-    return { error: "Thiếu dữ liệu room_id hoặc danh sách ghế" };
+    return { error: "Missing room_id or list seat!" };
   }
   await Seat.deleteMany({ room_id });
   return await Seat.insertMany(seats);
@@ -35,7 +35,7 @@ async function getSeatByRoomId(roomid) {
 
 async function getSeatByShowtimeId(showtimeid) {
   const showtime = await Showtime.findById(showtimeid);
-  if (!showtime) return { error: "Không tìm thấy lịch chiếu phim tương ứng" };
+  if (!showtime) return { error: "No matching movie showtimes found!" };
   const seats = await Seat.find({ room_id: showtime.room_id });
   const bookedTickets = await Ticket.find({ showtime_id: showtimeid }).select("seat_id");
   const bookedSeatIds = bookedTickets.map(ticket => ticket.seat_id.toString());
