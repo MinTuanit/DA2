@@ -4,7 +4,7 @@ const auth = require("../middlewares/auth");
 
 router.get(
   "/email",
-  auth("getUser"),
+  auth("getUserByEmail"),
   usercontroller.getUserByEmail
 );
 
