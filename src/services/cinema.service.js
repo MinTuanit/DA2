@@ -22,12 +22,31 @@ async function deleteCinemaById(id) {
   return await Cinema.findByIdAndDelete(id);
 }
 
-async function getEmployeeAndRoomById(cinema_id) {
-  const [employeeCount, roomCount] = await Promise.all([
-    Employee.countDocuments({ cinema_id }),
-    Room.countDocuments({ cinema_id })
+async function getAllCinemasWithCounts() {
+  const cinemas = await Cinema.find();
+
+  const cinemaIds = cinemas.map(c => c._id);
+
+  const employeeCounts = await Employee.aggregate([
+    { $match: { cinema_id: { $in: cinemaIds } } },
+    { $group: { _id: "$cinema_id", count: { $sum: 1 } } }
   ]);
-  return { cinema_id, employeeCount, roomCount };
+
+  const roomCounts = await Room.aggregate([
+    { $match: { cinema_id: { $in: cinemaIds } } },
+    { $group: { _id: "$cinema_id", count: { $sum: 1 } } }
+  ]);
+
+  const employeeMap = new Map(employeeCounts.map(e => [e._id.toString(), e.count]));
+  const roomMap = new Map(roomCounts.map(r => [r._id.toString(), r.count]));
+
+  return cinemas.map(c => ({
+    _id: c._id.toString(),
+    name: c.name,
+    address: c.address,
+    employee_count: employeeMap.get(c._id.toString()) || 0,
+    room_count: roomMap.get(c._id.toString()) || 0,
+  }));
 }
 
 module.exports = {
@@ -36,5 +55,5 @@ module.exports = {
   getCinemaById,
   updateCinemaById,
   deleteCinemaById,
-  getEmployeeAndRoomById
+  getAllCinemasWithCounts
 };

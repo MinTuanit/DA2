@@ -77,7 +77,7 @@ async function createOrders(data) {
     }
 
     // Thêm vé vào chi tiết đơn
-    if (tickets?.seats.length > 0) {
+    if (tickets?.seats?.length > 0) {
       const ticketDocs = tickets.seats.map(s => ({
         order_id: order._id,
         showtime_id: tickets.showtime_id,
@@ -157,7 +157,7 @@ async function createOrders(data) {
       populatedTickets,
       populatedProducts: productDetails
     });
-    const browser = await puppeteer.launch();
+    const browser = await puppeteer.launch({ headless: true, args: ['--no-sandbox'] });
     const page = await browser.newPage();
     await page.setContent(html, { waitUntil: "networkidle0" });
     const pdfBuffer = await page.pdf({ format: "A4" });

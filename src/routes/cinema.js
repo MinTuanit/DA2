@@ -11,15 +11,15 @@ router.get(
 );
 
 router.get(
-  "/:id",
+  "/employeeandroom",
   auth("getCinema"),
-  cinemacontroller.getCinemaById
+  cinemacontroller.getAllCinemasWithCounts
 );
 
 router.get(
-  "/employeeandroom/:cinemaid",
+  "/:id",
   auth("getCinema"),
-  cinemacontroller.getEmployeeAndRoomById
+  cinemacontroller.getCinemaById
 );
 
 router.post(

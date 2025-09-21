@@ -59,9 +59,9 @@ const deleteCinemaById = async (req, res) => {
   }
 };
 
-const getEmployeeAndRoomById = async (req, res) => {
+const getAllCinemasWithCounts = async (req, res) => {
   try {
-    const result = await cinemaservice.getEmployeeAndRoomById(req.params.cinemaid);
+    const result = await cinemaservice.getAllCinemasWithCounts();
     return res.status(200).json(result);
   } catch (error) {
     console.error("Server Error:", error);
@@ -75,5 +75,5 @@ module.exports = {
   getCinemaById,
   getAllCinemas,
   deleteCinemaById,
-  getEmployeeAndRoomById
+  getAllCinemasWithCounts
 };
