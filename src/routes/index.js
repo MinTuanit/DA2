@@ -17,6 +17,7 @@ const settingRoute = require("./setting");
 const revenueRoute = require("./revenue");
 const chatbotRoute = require("./chatbot");
 const paymentRoute = require("./payment");
+const recommendRoute = require("./recommend");
 
 const router = express.Router();
 
@@ -92,6 +93,10 @@ const defaultRoutes = [
   {
     path: "/payment",
     route: paymentRoute
+  },
+  {
+    path: "/recommend",
+    route: recommendRoute
   }
 ];
 
