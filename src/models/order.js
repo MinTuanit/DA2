@@ -25,7 +25,6 @@ const OrderSchema = new mongoose.Schema(
       ref: "Users",
       default: null
     },
-
     amount: {
       type: Number,
       required: true

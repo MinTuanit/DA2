@@ -21,6 +21,7 @@
     "express": "^4.21.2",
     "joi": "^17.13.3",
     "jsonwebtoken": "^9.0.2",
+    "moment": "^2.30.1",
     "mongoose": "^8.9.5",
     "morgan": "^1.10.0",
     "nodemailer": "^7.0.2",
@@ -29,8 +30,10 @@
     "pdfkit": "^0.17.1",
     "profanity-cleaner": "^0.0.3",
     "puppeteer": "^24.10.2",
+    "qs": "^6.14.0",
     "sequelize": "^6.37.7",
     "string-similarity": "^4.0.4",
-    "validator": "^13.12.0"
+    "validator": "^13.12.0",
+    "vnpay": "^2.4.4"
   }
 }

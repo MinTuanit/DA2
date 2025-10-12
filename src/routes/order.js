@@ -32,13 +32,13 @@ router.get(
 
 router.post(
   "/",
-  validate(orderValidation.createOrder),
+  // validate(orderValidation.createOrder),
   ordercontroller.createOrder
 );
 
 router.post(
   "/orders",
-  validate(orderValidation.createOrder),
+  // validate(orderValidation.createOrder),
   ordercontroller.createOrders
 );
 
