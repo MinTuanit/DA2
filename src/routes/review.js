@@ -21,11 +21,6 @@ router.get(
 );
 
 router.get(
-  "/movie",
-  reviewcontroller.getReviewByMovieId
-);
-
-router.get(
   "/:id",
   reviewcontroller.getReviewById
 );
@@ -35,6 +30,11 @@ router.post(
   auth("getReview"),
   validate(reviewValidation.createReview),
   reviewcontroller.createReview
+);
+
+router.post(
+  "/movie",
+  reviewcontroller.getReviewByMovieId
 );
 
 router.patch(
