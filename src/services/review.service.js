@@ -33,14 +33,45 @@ async function getAllReviews() {
   }));
 }
 
+async function getAllUnverifiedReviews() {
+  const reviews = await Review.find({ isVerify: false })
+    .populate({ path: 'user_id', select: 'full_name email' })
+    .populate({ path: 'movie_id', select: 'title' });
+
+  if (!reviews || reviews.length === 0) return [];
+
+  return reviews.map(review => ({
+    _id: review._id,
+    movie: review.movie_id ? {
+      movie_id: review.movie_id._id,
+      title: review.movie_id.title
+    } : null,
+    rating: review.rating,
+    comment: review.comment,
+    created_at: review.created_at,
+    user: review.user_id ? {
+      user_id: review.user_id._id,
+      full_name: review.user_id.full_name,
+      email: review.user_id.email
+    } : null
+  }));
+}
+
 async function getReviewById(id) {
   return await Review.findById(id);
 }
 
-async function getReviewByMovieId(movieid) {
-  const reviews = await Review.find({ movie_id: movieid })
-    .populate({ path: 'user_id', select: 'full_name email' });
+async function getReviewByMovieId(movieid, currentUserId) {
+  const reviews = await Review.find({
+    movie_id: movieid,
+    $or: [
+      { isVerify: true },
+      { $and: [{ isVerify: false }, { user_id: currentUserId }] }
+    ]
+  }).populate({ path: 'user_id', select: 'full_name email' });
+
   if (!reviews || reviews.length === 0) return [];
+
   return reviews.map(review => ({
     _id: review._id,
     rating: review.rating,
@@ -92,5 +123,6 @@ module.exports = {
   getReviewWithUserInfo,
   deleteReviewById,
   deleteReviewByMovieId,
-  updateReviewById
+  updateReviewById,
+  getAllUnverifiedReviews
 };

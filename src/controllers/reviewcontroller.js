@@ -23,6 +23,16 @@ const getAllReviews = async (req, res) => {
     }
 };
 
+const getAllUnverifiedReviews = async (req, res) => {
+    try {
+        const reviews = await reviewService.getAllUnverifiedReviews();
+        res.status(200).json(reviews);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: { message: "Server Error!" } });
+    }
+};
+
 const getReviewById = async (req, res) => {
     try {
         const review = await reviewService.getReviewById(req.params.id);
@@ -38,7 +48,8 @@ const getReviewById = async (req, res) => {
 
 const getReviewByMovieId = async (req, res) => {
     try {
-        const reviews = await reviewService.getReviewByMovieId(req.params.movieid);
+        const { movie_id, user_id } = req.body;
+        const reviews = await reviewService.getReviewByMovieId(movie_id, user_id);
         if (!reviews || reviews.length === 0) {
             return res.status(404).json({ error: { message: "No reviews!" } });
         }
@@ -109,5 +120,6 @@ module.exports = {
     getReviewWithUserInfo,
     deleteReviewById,
     deleteReviewByMovieId,
-    updateReviewById
+    updateReviewById,
+    getAllUnverifiedReviews
 };

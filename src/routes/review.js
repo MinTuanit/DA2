@@ -10,13 +10,18 @@ router.get(
 );
 
 router.get(
+  "/unverified",
+  reviewcontroller.getAllUnverifiedReviews
+);
+
+router.get(
   "/userinfo/:reviewid",
   auth("getReview"),
   reviewcontroller.getReviewWithUserInfo
 );
 
 router.get(
-  "/movie/:movieid",
+  "/movie",
   reviewcontroller.getReviewByMovieId
 );
 
