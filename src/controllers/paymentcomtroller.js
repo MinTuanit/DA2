@@ -2,6 +2,7 @@ const moment = require("moment");
 const qs = require("qs");
 const crypto = require("crypto");
 const Order = require("../models/order");
+const { updateLoyaltyPoints } = require("../services/user.service");
 const config = require("../config/vnpay");
 
 const createVNPayPayment = async (req, res) => {
@@ -89,14 +90,24 @@ const vnpayReturn = async (req, res) => {
 
       if (rspCode === "00") {
         // Thanh toán thành công
-        await Order.findOneAndUpdate(
+        const order = await Order.findOneAndUpdate(
           { _id: order_id },
-          { status: "completed", payment_method: "banking", paid_at: new Date() }
-        );
+          { status: "completed", payment_method: "banking", paid_at: new Date() },
+          { new: true }
+        ).populate("user_id");
+
+        if (!order) {
+          return res.status(404).json({ error: { message: "Order not found!" } });
+        }
+
+        // Gọi service cộng điểm
+        const points = await updateLoyaltyPoints(order.user_id._id, order.amount);
+
         return res.status(200).json({
           message: "Payment Successfully!",
           order_id: order_id,
           code: rspCode,
+          added_points: points,
         });
       } else {
         return res.stsatus(400).json({

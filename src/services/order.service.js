@@ -480,12 +480,16 @@ async function getOrderByUserId(userId) {
 
   return detailedOrders;
 }
-
 async function deleteOrderById(id) {
-  const order = await Order.findByIdAndDelete(id);
+  const order = await Order.findById(id);
+  if (!order) return null;
+
+  await Ticket.deleteMany({ order_id: id });
+  await OrderProductDetail.deleteMany({ order_id: id });
+
+  await Order.findByIdAndDelete(id);
   return order;
 }
-
 async function deleteOrderByUserId(userid) {
   const result = await Order.deleteMany({ user_id: userid });
   return result;

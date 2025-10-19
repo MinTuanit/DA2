@@ -45,6 +45,10 @@ const UserSchema = new mongoose.Schema(
       trim: true,
       unique: true
     },
+    loyalty_points: {
+      type: Number,
+      default: 0
+    },
     role: {
       type: String,
       enum: ['customer', 'admin', 'employee'],

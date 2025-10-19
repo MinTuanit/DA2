@@ -1,4 +1,5 @@
 const orderService = require('../services/order.service');
+const { updateLoyaltyPoints } = require("../services/user.service");
 
 // Tạo đơn hàng đơn giản
 const createOrder = async (req, res) => {
@@ -92,12 +93,20 @@ const getOrderByUserId = async (req, res) => {
 
 const deleteOrderById = async (req, res) => {
     try {
-        const order = await orderService.deleteOrderById(req.params.id);
+        const orderId = req.params.id;
+        const order = await orderService.deleteOrderById(orderId);
         if (!order) {
             return res.status(404).json({ error: { message: "Order not found!" } });
         }
-        return res.status(204).json("Delete order successfully.");
+
+        const points = await updateLoyaltyPoints(order.user_id._id, -order.amount);
+
+        return res.status(200).json({
+            minus_points: points,
+            message: "Delete order, tickets and order details successfully!"
+        });
     } catch (error) {
+        console.error(error);
         return res.status(500).json({ error: { message: "Server Error!" } });
     }
 };

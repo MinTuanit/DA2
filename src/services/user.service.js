@@ -103,6 +103,17 @@ async function getUserCreditPoints(userid) {
   return { credit_points: totalSpent };
 }
 
+async function updateLoyaltyPoints(userId, amount) {
+  // 1 điểm cho mỗi 1,000 VND
+  const points = Math.floor(amount / 1000);
+  await User.findByIdAndUpdate(
+    userId,
+    { $inc: { loyalty_points: points } },
+    { new: true }
+  );
+  return points;
+}
+
 module.exports = {
   createUser,
   updateUserById,
@@ -111,5 +122,6 @@ module.exports = {
   getUserById,
   getUserByEmail,
   getUserByRole,
-  getUserCreditPoints
+  getUserCreditPoints,
+  updateLoyaltyPoints
 };
