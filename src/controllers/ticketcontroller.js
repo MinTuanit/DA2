@@ -36,9 +36,9 @@ const getTicketById = async (req, res) => {
 const getTicketByUserId = async (req, res) => {
     try {
         const tickets = await ticketService.getTicketByUserId(req.params.userid);
-        if (!tickets || tickets.length === 0) {
-            return res.status(404).json({ error: { message: "This user has no tickets!" } });
-        }
+        // if (!tickets || tickets.length === 0) {
+        //     return res.status(404).json({ error: { message: "This user has no tickets!" } });
+        // }
         return res.status(200).json(tickets);
     } catch (error) {
         console.error("Server Error: ", error);

@@ -24,12 +24,12 @@ const getMovieById = async (req, res) => {
     try {
         const movie = await movieservice.getMovieById(req.params.id);
         if (!movie) {
-            console.log("Movie not found!");
+            // console.log("Movie not found!");
             return res.status(404).json({ error: { message: "Movie not found!" } });
         }
         return res.status(200).json(movie);
     } catch (error) {
-        console.log("Server Error: ", error);
+        // console.log("Server Error: ", error);
         return res.status(500).json({ error: { message: "Server Error!" } });
     }
 };

@@ -81,9 +81,9 @@ const getOrderWithInfoById = async (req, res) => {
 const getOrderByUserId = async (req, res) => {
     try {
         const result = await orderService.getOrderByUserId(req.params.userid);
-        if (!result) {
-            return res.status(404).json({ error: { message: "Order not found!" } });
-        }
+        // if (!result) {
+        //     return res.status(404).json({ error: { message: "Order not found!" } });
+        // }
         return res.status(200).json(result);
     } catch (error) {
         console.error("Server Error :", error);

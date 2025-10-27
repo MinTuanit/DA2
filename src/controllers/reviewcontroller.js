@@ -13,9 +13,9 @@ const createReview = async (req, res) => {
 const getAllReviews = async (req, res) => {
     try {
         const reviews = await reviewService.getAllReviews();
-        if (!reviews || reviews.length === 0) {
-            return res.status(404).json({ error: { message: "No reviews!" } });
-        }
+        // if (!reviews || reviews.length === 0) {
+        //     return res.status(404).json({ error: { message: "No reviews!" } });
+        // }
         return res.status(200).json(reviews);
     } catch (error) {
         console.error("Server Error: ", error);
@@ -50,9 +50,9 @@ const getReviewByMovieId = async (req, res) => {
     try {
         const { movie_id, user_id } = req.body;
         const reviews = await reviewService.getReviewByMovieId(movie_id, user_id);
-        if (!reviews || reviews.length === 0) {
-            return res.status(404).json({ error: { message: "No reviews!" } });
-        }
+        // if (!reviews || reviews.length === 0) {
+        //     return res.status(404).json({ error: { message: "No reviews!" } });
+        // }
         return res.status(200).json(reviews);
     } catch (error) {
         console.error("Server Error: ", error);
@@ -63,9 +63,9 @@ const getReviewByMovieId = async (req, res) => {
 const getReviewWithUserInfo = async (req, res) => {
     try {
         const review = await reviewService.getReviewWithUserInfo(req.params.reviewid);
-        if (!review) {
-            return res.status(404).json({ error: { message: "Review not found!" } });
-        }
+        // if (!review) {
+        //     return res.status(404).json({ error: { message: "Review not found!" } });
+        // }
         return res.status(200).json(review);
     } catch (error) {
         console.error("Server Error: ", error);

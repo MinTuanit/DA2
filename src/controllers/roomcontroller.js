@@ -49,9 +49,9 @@ const getRoomById = async (req, res) => {
 const getRoomByCinemaId = async (req, res) => {
     try {
         const rooms = await roomService.getRoomByCinemaId(req.params.cinemaid);
-        if (!rooms || rooms.length === 0) {
-            return res.status(404).json({ error: { message: "No room for this cinema!" } });
-        }
+        // if (!rooms || rooms.length === 0) {
+        //     return res.status(404).json({ error: { message: "No room for this cinema!" } });
+        // }
         return res.status(200).json(rooms);
     } catch (error) {
         console.error("Server Error: ", error);

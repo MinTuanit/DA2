@@ -62,9 +62,9 @@ const getSeatById = async (req, res) => {
 const getSeatByRoomId = async (req, res) => {
     try {
         const seats = await seatService.getSeatByRoomId(req.params.roomid);
-        if (!seats.length) {
-            return res.status(404).json({ error: { message: "No seat for this room!" } });
-        }
+        // if (!seats.length) {
+        //     return res.status(404).json({ error: { message: "No seat for this room!" } });
+        // }
         return res.status(200).json(seats);
     } catch (error) {
         console.error("Server Error: ", error);

@@ -39,9 +39,9 @@ const getShowTimeById = async (req, res) => {
 const getShowTimeByMovieId = async (req, res) => {
     try {
         const showtimes = await showtimeService.getShowTimeByMovieId(req.params.movieid);
-        if (!showtimes || showtimes.length === 0) {
-            return res.status(404).json({ error: { message: "There are no showtimes for this movie!" } });
-        }
+        // if (!showtimes || showtimes.length === 0) {
+        //     return res.status(404).json({ error: { message: "There are no showtimes for this movie!" } });
+        // }
         return res.status(200).json(showtimes);
     } catch (error) {
         console.error("Server Error: ", error);
