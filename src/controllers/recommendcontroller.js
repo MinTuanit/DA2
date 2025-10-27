@@ -7,7 +7,7 @@ const getRecommendationsByGenre = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      message: "Recommended movies by genre",
+      //message: "Recommended movies by genre",
       data: movies
     });
   } catch (err) {
@@ -23,7 +23,7 @@ const getRecommendationsByCountry = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      message: "Recommended movies by country",
+      //message: "Recommended movies by country",
       data: movies
     });
   } catch (err) {

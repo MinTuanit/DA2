@@ -21,35 +21,65 @@ async function getUserWatchedMovies(userId) {
     .filter(Boolean);
 }
 
-async function getRecommendationsByUser(userId) {
-  const watchedMovies = await getUserWatchedMovies(userId);
+async function getLastTwoWatchedMovies(userId) {
+  // Lấy các đơn hàng gần nhất
+  const orders = await Order.find({ user_id: userId })
+    .sort({ createdAt: -1 })
+    .select("_id")
+    .limit(5);
 
-  // Nếu user chưa xem phim → trả về top 10 phim có rating cao nhất
-  if (!watchedMovies.length) {
-    return await Movie.find().sort({ rating: -1 }).limit(10);
+  if (!orders.length) return [];
+
+  const orderIds = orders.map(o => o._id);
+
+  // Lấy 2 vé gần nhất (sắp xếp theo thời gian)
+  const tickets = await Ticket.find({ order_id: { $in: orderIds } })
+    .sort({ createdAt: -1 })
+    .limit(2)
+    .populate({
+      path: "showtime_id",
+      populate: { path: "movie_id", select: "_id genre" }
+    });
+
+  // Trích xuất danh sách phim (chỉ lấy _id, genre)
+  return tickets
+    .map(t => t.showtime_id?.movie_id)
+    .filter(Boolean);
+}
+
+async function getRecommendationsByUser(userId) {
+  const recentMovies = await getLastTwoWatchedMovies(userId);
+
+  // Nếu user chưa xem phim nào → lấy top 5 phim theo rating
+  if (!recentMovies.length) {
+    const topMovies = await Movie.find()
+      .sort({ rating: -1 })
+      .limit(5)
+      .select("_id");
+    return topMovies.map(m => m._id);
   }
 
-  // Lấy danh sách thể loại user đã xem
+  // Lấy danh sách thể loại của 2 phim gần nhất
   const genres = [
     ...new Set(
-      watchedMovies
-        .flatMap(movie => movie.genre || [])
-        .filter(Boolean)
+      recentMovies.flatMap(movie => movie.genre || []).filter(Boolean)
     )
   ];
 
   // Lấy danh sách ID phim đã xem
-  const watchedIds = watchedMovies.map(m => m._id);
+  const watchedIds = recentMovies.map(m => m._id);
 
   // Gợi ý phim khác cùng thể loại
-  const recommended = await Movie.find({
+  const recommendations = await Movie.find({
     _id: { $nin: watchedIds },
     genre: { $in: genres }
   })
     .sort({ rating: -1 })
-    .limit(10);
+    .limit(5)
+    .select("_id");
 
-  return recommended;
+  // Trả về danh sách ID phim
+  return recommendations.map(m => m._id);
 }
 
 async function getRecommendedMoviesByCountry(userId) {
@@ -69,7 +99,7 @@ async function getRecommendedMoviesByCountry(userId) {
     _id: { $nin: watchedMovies.map(m => m._id) }
   })
     .sort({ rating: -1 })
-    .limit(10);
+    .limit(5);
 
   return recommended;
 }
