@@ -1,11 +1,11 @@
 const fs = require('fs');
 const path = require('path');
-const axios = require('axios');
+const { GoogleGenerativeAI } = require('@google/generative-ai');
 const Movie = require('../models/movie');
 const Product = require('../models/product');
 const Constraint = require('../models/constraint');
 
-const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
+const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY);
 
 const filePath = path.join(__dirname, '../prompt/cinema_info.txt');
 const fileContent = fs.readFileSync(filePath, 'utf8');
@@ -41,25 +41,18 @@ const chatbot = async (req, res) => {
         // Fetch all movies with their titles, poster_url, and IDs
         const movies = await Movie.find({ status: { $in: ["Now Playing", "Coming Soon"] } }).select('title poster_url _id');
 
-        const prompt = await buildPrompt();
-        console.log('Prompt content:\n', prompt);
+        const systemPrompt = await buildPrompt();
+        console.log('Prompt content:\n', systemPrompt);
 
-        const response = await axios.post('https://openrouter.ai/api/v1/chat/completions', {
-            model: 'deepseek/deepseek-r1-0528:free',
-            max_tokens: 1000,
-            messages: [
-                { role: 'system', content: prompt },
-                { role: 'user', content: req.body.message }
-            ]
-        }, {
-            headers: {
-                'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
-                'HTTP-Referer': 'http://localhost:3000',
-                'X-Title': 'Chatbot Cinema Assistant'
-            }
-        });
+        // Sử dụng Gemini 2.0 Flash
+        const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-exp" });
 
-        const reply = response.data.choices[0].message.content;
+        // Kết hợp system prompt với user message
+        const fullPrompt = `${systemPrompt}\n\nUser question: ${req.body.message}\n\nPlease respond in Vietnamese and be helpful about cinema information.`;
+
+        const result = await model.generateContent(fullPrompt);
+        const response = await result.response;
+        const reply = response.text();
 
         // Find mentioned movies in the reply and include id, title, poster_url
         const mentionedMovies = movies
@@ -72,11 +65,12 @@ const chatbot = async (req, res) => {
 
         return res.json({
             reply,
-            mentionedMovies
+            mentionedMovies,
+            model: "gemini-2.0-flash-exp"
         });
     } catch (err) {
-        console.error(err.response?.data || err.message);
-        return res.status(500).json({ error: 'Server Error!' });
+        console.error('Gemini API Error:', err.message);
+        return res.status(500).json({ error: 'Server Error!', details: err.message });
     }
 };
 
