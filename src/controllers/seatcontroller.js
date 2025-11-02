@@ -46,6 +46,37 @@ const getAllSeats = async (req, res) => {
     }
 };
 
+const suggestSeats = async (req, res) => {
+    try {
+        const { showtime_id, numPeople } = req.body;
+
+        if (!showtime_id || !numPeople) {
+            return res.status(400).json({
+                error: { message: "Missing showtime_id or numPeople" }
+            });
+        }
+
+        const seats = await seatService.suggestSeats(showtime_id, numPeople);
+
+        if (seats.length === 0) {
+            return res.json({
+                message: "No adjacent seats found",
+                data: []
+            });
+        }
+
+        return res.json({
+            message: `Suggested seats for ${numPeople} people`,
+            data: seats
+        });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({
+            error: { message: error.message || "Server error" }
+        });
+    }
+};
+
 const getSeatById = async (req, res) => {
     try {
         const seat = await seatService.getSeatById(req.params.id);
@@ -134,5 +165,6 @@ module.exports = {
     getSeatByShowtimeId,
     updateSeatById,
     deleteSeatById,
-    deleteSeatByRoomId
+    deleteSeatByRoomId,
+    suggestSeats
 };

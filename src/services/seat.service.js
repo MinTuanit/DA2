@@ -57,6 +57,59 @@ async function updateSeatById(id, data) {
   return await Seat.findByIdAndUpdate(id, data, { new: true });
 }
 
+async function suggestSeats(showtime_id, numPeople) {
+  // Lấy thông tin suất chiếu và phòng
+  const showtime = await Showtime.findById(showtime_id).populate("room_id");
+  if (!showtime) throw new Error("Showtime not found");
+
+  // Lấy toàn bộ ghế của phòng chiếu
+  const seats = await Seat.find({ room_id: showtime.room_id._id }).lean();
+
+  // Lấy danh sách ghế đã đặt
+  const bookedTickets = await Ticket.find({ showtime_id }).select("seat_id");
+  const bookedSeatIds = bookedTickets.map(t => t.seat_id.toString());
+
+  // Đánh dấu available
+  const availableSeats = seats.map(seat => ({
+    ...seat,
+    available: !bookedSeatIds.includes(seat._id.toString())
+  }));
+
+  // Gom ghế theo hàng (ký tự đầu)
+  const groupedByRow = {};
+  for (const seat of availableSeats) {
+    const row = seat.seat_name[0];
+    if (!groupedByRow[row]) groupedByRow[row] = [];
+    groupedByRow[row].push(seat);
+  }
+
+  // Duyệt từng hàng tìm cụm ghế trống liên tiếp
+  for (const row of Object.keys(groupedByRow)) {
+    const rowSeats = groupedByRow[row]
+      .filter(s => s.available)
+      .sort((a, b) => a.seat_column - b.seat_column);
+
+    let consecutive = [];
+    for (let i = 0; i < rowSeats.length; i++) {
+      if (
+        consecutive.length === 0 ||
+        rowSeats[i].seat_column === rowSeats[i - 1].seat_column + 1
+      ) {
+        consecutive.push(rowSeats[i]);
+      } else {
+        consecutive = [rowSeats[i]];
+      }
+
+      if (consecutive.length === parseInt(numPeople)) {
+        return consecutive; //trả về nhóm ghế phù hợp
+      }
+    }
+  }
+
+  //Không tìm thấy ghế phù hợp
+  return [];
+};
+
 module.exports = {
   createSeat,
   createSeats,
@@ -67,5 +120,6 @@ module.exports = {
   getSeatByShowtimeId,
   updateSeatById,
   deleteSeatById,
-  deleteSeatByRoomId
+  deleteSeatByRoomId,
+  suggestSeats
 };

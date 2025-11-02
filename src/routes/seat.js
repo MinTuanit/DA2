@@ -35,6 +35,11 @@ router.post(
 );
 
 router.post(
+  "/suggest/",
+  seatcontroller.suggestSeats
+);
+
+router.post(
   "/room/resetseats/",
   auth("manageSeat"),
   seatcontroller.resetSeats
