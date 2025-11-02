@@ -10,6 +10,12 @@ router.get(
   discountcontroller.getAllDiscounts
 );
 
+router.post(
+  "/allavailable/",
+  auth("getDiscount"),
+  discountcontroller.getAvailableDiscounts
+);
+
 router.get(
   "/code/:code",
   auth("getDiscount"),
