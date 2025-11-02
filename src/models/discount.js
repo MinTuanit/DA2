@@ -42,10 +42,11 @@ const DiscountSchema = new mongoose.Schema(
       require: false,
       default: null
     },
-    credit: {
-      type: Number,
+    rank: {
+      type: String,
+      enum: ["Bronze", "Silver", "Gold"],
       require: false,
-      default: 0
+      default: null
     },
     created_at: {
       type: Date,
