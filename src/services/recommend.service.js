@@ -50,9 +50,9 @@ async function getLastTwoWatchedMovies(userId) {
 async function getRecommendationsByUser(userId) {
   const recentMovies = await getLastTwoWatchedMovies(userId);
 
-  // Nếu user chưa xem phim nào → lấy top 5 phim theo rating
+  // Nếu user chưa xem phim nào → lấy top 5 phim theo rating (phim đang chiếu hoặc sắp chiếu)
   if (!recentMovies.length) {
-    const topMovies = await Movie.find()
+    const topMovies = await Movie.find({ status: { $in: ["Now Playing", "Coming Soon"] } })
       .sort({ rating: -1 })
       .limit(5)
       .select("_id");
@@ -69,10 +69,11 @@ async function getRecommendationsByUser(userId) {
   // Lấy danh sách ID phim đã xem
   const watchedIds = recentMovies.map(m => m._id);
 
-  // Gợi ý phim khác cùng thể loại
+  // Gợi ý phim khác cùng thể loại (phim đang chiếu hoặc sắp chiếu)
   const recommendations = await Movie.find({
     _id: { $nin: watchedIds },
-    genre: { $in: genres }
+    genre: { $in: genres },
+    status: { $in: ["Now Playing", "Coming Soon"] }
   })
     .sort({ rating: -1 })
     .limit(5)
@@ -96,7 +97,8 @@ async function getRecommendedMoviesByCountry(userId) {
 
   const recommended = await Movie.find({
     country: { $in: countries },
-    _id: { $nin: watchedMovies.map(m => m._id) }
+    _id: { $nin: watchedMovies.map(m => m._id) },
+    status: { $in: ["Now Playing", "Coming Soon"] }
   })
     .sort({ rating: -1 })
     .limit(5);
