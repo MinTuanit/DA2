@@ -21,7 +21,7 @@ const ConstraintSchema = new mongoose.Schema(
         open_time: {
             type: String,
             required: true
-        },  
+        },
         close_time: {
             type: String,
             required: true
@@ -41,6 +41,24 @@ const ConstraintSchema = new mongoose.Schema(
         reservation_time: {
             type: Number,
             required: true
+        },
+        bronze_member: {
+            type: Number,
+            required: true,
+            default: 1000, // example: 1000 points to start
+            min: 0
+        },
+        silver_member: {
+            type: Number,
+            required: true,
+            default: 3000, // example: 3000 points
+            min: 0
+        },
+        gold_member: {
+            type: Number,
+            required: true,
+            default: 5000, // example: 5000 points
+            min: 0
         },
     }
 );
