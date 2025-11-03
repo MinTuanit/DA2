@@ -163,7 +163,7 @@ async function createOrders(data) {
     const pdfBuffer = await page.pdf({ format: "A4" });
     await browser.close();
 
-    return { pdfBuffer, ordercode };
+    return { pdfBuffer, ordercode, order_id: order._id };
   } catch (error) {
     if (session.inTransaction()) {
       await session.abortTransaction();

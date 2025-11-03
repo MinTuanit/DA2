@@ -19,8 +19,13 @@ const createOrders = async (req, res) => {
         if (result?.error) {
             return res.status(409).json({ error: { message: result.error } });
         }
-        res.setHeader('Content-Type', 'application/pdf');
-        res.setHeader('Content-Disposition', `inline; filename=hoadon_${result.ordercode}.pdf`);
+
+        // Trả thêm order_id và ordercode trong header
+        res.setHeader("x-order-id", result.order_id.toString());
+        res.setHeader("x-order-code", result.ordercode);
+        res.setHeader("Content-Type", "application/pdf");
+        res.setHeader("Content-Disposition", `inline; filename=hoadon_${result.ordercode}.pdf`);
+
         res.end(result.pdfBuffer);
     } catch (error) {
         console.error("Server Error: ", error);
