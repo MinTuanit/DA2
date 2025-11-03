@@ -21,6 +21,8 @@ const createOrders = async (req, res) => {
         }
 
         // Trả thêm order_id và ordercode trong header
+        res.setHeader("Access-Control-Expose-Headers", "x-order-id, x-order-code");
+
         res.setHeader("x-order-id", result.order_id.toString());
         res.setHeader("x-order-code", result.ordercode);
         res.setHeader("Content-Type", "application/pdf");
