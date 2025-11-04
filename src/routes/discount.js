@@ -31,7 +31,7 @@ router.get(
 router.post(
   "/",
   auth("manageDiscount"),
-  validate(discountValidation.createDiscount),
+  // validate(discountValidation.createDiscount),
   discountcontroller.createDiscount
 );
 
