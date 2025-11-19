@@ -114,7 +114,7 @@ async function createOrders(data) {
           ]
         }),
       OrderProductDetail.find({ order_id: order._id })
-        .populate({ path: "product_id", select: "name" })
+        .populate({ path: "product_id", select: "name price" })
     ]);
 
     const productDetails = populatedProducts.map(p => ({
@@ -122,6 +122,7 @@ async function createOrders(data) {
       quantity: p.quantity
     }));
 
+    // Gửi email xác nhận nếu có email
     // Gửi email xác nhận nếu có email
     if (email) {
       try {
@@ -132,10 +133,20 @@ async function createOrders(data) {
           seat_name: t.seat_id?.seat_name,
           price: t.showtime_id?.price,
         }));
+
+        // Thêm thông tin sản phẩm
+        const simplifiedProducts = populatedProducts.map(p => ({
+          name: p.product_id?.name || "",
+          price: p.product_id?.price || 0,
+          quantity: p.quantity,
+          total: (p.product_id?.price || 0) * p.quantity
+        }));
+
         sendOrderConfirmationEmail({
           toEmail: email,
           ordercode,
           tickets: simplifiedTickets,
+          products: simplifiedProducts,
           totalPrice: total_price,
           showtime: {
             datetime: showtime?.showtime,

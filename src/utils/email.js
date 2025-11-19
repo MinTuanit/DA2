@@ -3,13 +3,23 @@ const dotenv = require("dotenv");
 
 dotenv.config();
 
-const buildOrderEmailHtml = (ordercode, tickets, totalPrice, showtime, cinemaName, movieName) => {
+const buildOrderEmailHtml = (ordercode, tickets, totalPrice, showtime, cinemaName, movieName, products = []) => {
     const ticketRows = tickets.map((t, index) => `
         <tr>
             <td style="text-align: center;">${index + 1}</td>
             <td style="text-align: center;">Ghế ${t.seat_name}</td>
             <td style="text-align: center;">1</td>
             <td style="text-align: center;">${t.price}</td>
+        </tr>
+    `).join('');
+
+    const productRows = products.map((p, index) => `
+        <tr>
+            <td style="text-align: center;">${index + 1}</td>
+            <td style="text-align: center;">${p.name}</td>
+            <td style="text-align: center;">${p.quantity}</td>
+            <td style="text-align: center;">${p.price}</td>
+            <td style="text-align: center;">${p.total}</td>
         </tr>
     `).join('');
 
@@ -23,6 +33,7 @@ const buildOrderEmailHtml = (ordercode, tickets, totalPrice, showtime, cinemaNam
         <p><strong>Rạp:</strong> ${cinemaName}</p>
         <p><strong>Số ghế:</strong> ${tickets.length}</p>
 
+        <h3 style="color: purple; margin-top: 20px;">VÉ XEM PHIM</h3>
         <table style="width:100%; border-collapse: collapse;" border="1">
             <thead>
                 <tr style="background: #800080; color: white;">
@@ -37,13 +48,31 @@ const buildOrderEmailHtml = (ordercode, tickets, totalPrice, showtime, cinemaNam
             </tbody>
         </table>
 
-        <p style="text-align: right;"><strong>Tổng tiền:</strong> ${totalPrice.toLocaleString('vi-VN')} VNĐ</p>
+        ${products.length > 0 ? `
+        <h3 style="color: purple; margin-top: 20px;">SẢN PHẨM KHÁC</h3>
+        <table style="width:100%; border-collapse: collapse;" border="1">
+            <thead>
+                <tr style="background: #800080; color: white;">
+                    <th>STT</th>
+                    <th>Tên sản phẩm</th>
+                    <th>Số lượng</th>
+                    <th>Đơn giá</th>
+                    <th>Thành tiền</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${productRows}
+            </tbody>
+        </table>
+        ` : ''}
+
+        <p style="text-align: right; margin-top: 15px;"><strong>Tổng tiền:</strong> ${totalPrice.toLocaleString('vi-VN')} VNĐ</p>
         <p>Cảm ơn Quý khách đã xem phim tại <strong>${cinemaName}</strong>. Chúc Quý khách một buổi xem phim vui vẻ.</p>
     </div>
     `;
 };
 
-const sendOrderConfirmationEmail = async ({ toEmail, ordercode, tickets, totalPrice, showtime, cinemaName, movieName }) => {
+const sendOrderConfirmationEmail = async ({ toEmail, ordercode, tickets, totalPrice, showtime, cinemaName, movieName, products = [] }) => {
     const transporter = nodemailer.createTransport({
         service: 'gmail',
         auth: {
@@ -52,7 +81,7 @@ const sendOrderConfirmationEmail = async ({ toEmail, ordercode, tickets, totalPr
         }
     });
 
-    const html = buildOrderEmailHtml(ordercode, tickets, totalPrice, showtime, cinemaName, movieName);
+    const html = buildOrderEmailHtml(ordercode, tickets, totalPrice, showtime, cinemaName, movieName, products);
 
     const mailOptions = {
         from: `"Rạp Chiếu Phim" <${process.env.MAIL_USERNAME}>`,
