@@ -110,7 +110,7 @@ const vnpayReturn = async (req, res) => {
           added_points: points,
         });
       } else {
-        return res.stsatus(400).json({
+        return res.status(400).json({
           message: "Failed payment!",
           code: rspCode,
         });
