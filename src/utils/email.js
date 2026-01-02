@@ -4,11 +4,15 @@ const dotenv = require("dotenv");
 dotenv.config();
 
 const buildOrderEmailHtml = (ordercode, tickets, totalPrice, showtime, cinemaName, movieName, products = [], cinemaAddress = '') => {
+    const formatNumber = (value) => {
+        const n = Number(value) || 0;
+        return n.toLocaleString('en-US');
+    };
     const ticketRows = tickets.map((t, index) => `
         <tr>
             <td style="text-align: center;">${index + 1}</td>
             <td style="text-align: center;">Ghế ${t.seat_name}</td>
-            <td style="text-align: center;">${t.price}</td>
+            <td style="text-align: center;">${formatNumber(t.price)}</td>
         </tr>
     `).join('');
 
@@ -17,8 +21,8 @@ const buildOrderEmailHtml = (ordercode, tickets, totalPrice, showtime, cinemaNam
             <td style="text-align: center;">${index + 1}</td>
             <td style="text-align: center;">${p.name}</td>
             <td style="text-align: center;">${p.quantity}</td>
-            <td style="text-align: center;">${p.price}</td>
-            <td style="text-align: center;">${p.total}</td>
+            <td style="text-align: center;">${formatNumber(p.price)}</td>
+            <td style="text-align: center;">${formatNumber(p.total)}</td>
         </tr>
     `).join('');
 
@@ -65,7 +69,7 @@ const buildOrderEmailHtml = (ordercode, tickets, totalPrice, showtime, cinemaNam
         </table>
         ` : ''}
 
-        <p style="text-align: right; margin-top: 15px;"><strong>Tổng tiền:</strong> ${totalPrice.toLocaleString('vi-VN')} VNĐ</p>
+        <p style="text-align: right; margin-top: 15px;"><strong>Tổng tiền:</strong> ${formatNumber(totalPrice)} VNĐ</p>
         <p>Cảm ơn Quý khách đã xem phim tại <strong>${cinemaName}</strong>${cinemaAddress ? ` (Địa chỉ: ${cinemaAddress})` : ''}. Chúc Quý khách một buổi xem phim vui vẻ.</p>
     </div>
     `;
