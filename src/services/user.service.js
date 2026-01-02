@@ -48,7 +48,24 @@ async function getUserById(id) {
 }
 
 async function getUserByEmail(email) {
-  return await User.findOne({ email });
+  const user = await User.findOne({ email });
+  if (!user) return user;
+
+  let rank = 'none';
+  try {
+    const Constraint = require('../models/constraint');
+    const cfg = await Constraint.findOne() || {};
+    const lp = user.loyalty_points || 0;
+    if (lp >= (cfg.gold_member ?? 5000)) rank = 'gold';
+    else if (lp >= (cfg.silver_member ?? 3000)) rank = 'silver';
+    else if (lp >= (cfg.bronze_member ?? 1000)) rank = 'bronze';
+  } catch (err) {
+    console.error('Error calculating rank:', err.message);
+  }
+
+  const userObj = user.toObject();
+  userObj.rank = rank;
+  return userObj;
 }
 
 async function getUserByRole(role) {
