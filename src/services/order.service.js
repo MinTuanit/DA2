@@ -153,6 +153,7 @@ async function createOrders(data) {
             room_name: showtime?.room_id?.name
           },
           cinemaName,
+          cinemaAddress: showtime?.room_id?.cinema_id?.address,
           movieName
         });
       } catch (emailErr) {
