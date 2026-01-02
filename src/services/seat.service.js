@@ -83,7 +83,9 @@ async function suggestSeats(showtime_id, numPeople) {
     groupedByRow[row].push(seat);
   }
 
-  // Duyệt từng hàng tìm cụm ghế trống liên tiếp
+  // Duyệt từng hàng tìm cụm ghế trống liên tiếp, ưu tiên ghế ở giữa (cả ngang lẫn dọc)
+  let allConsecutiveGroups = [];
+
   for (const row of Object.keys(groupedByRow)) {
     const rowSeats = groupedByRow[row]
       .filter(s => s.available)
@@ -101,13 +103,41 @@ async function suggestSeats(showtime_id, numPeople) {
       }
 
       if (consecutive.length === parseInt(numPeople)) {
-        return consecutive; //trả về nhóm ghế phù hợp
+        allConsecutiveGroups.push(consecutive);
+        consecutive = []; // reset để tìm group tiếp theo
       }
     }
   }
 
-  //Không tìm thấy ghế phù hợp
-  return [];
+  // Không tìm thấy ghế phù hợp
+  if (allConsecutiveGroups.length === 0) return [];
+
+  // Tính toán center của theater (cả ngang lẫn dọc)
+  const allRows = Array.from(new Set(availableSeats.map(s => s.seat_name[0]))).sort();
+  const allColumns = Array.from(new Set(availableSeats.map(s => s.seat_column))).map(Number).sort((a, b) => a - b);
+
+  const centerRow = allRows[Math.floor(allRows.length / 2)];
+  const centerColumn = (allColumns[0] + allColumns[allColumns.length - 1]) / 2;
+  const centerRowIndex = allRows.indexOf(centerRow);
+
+  // Chọn nhóm ghế gần center nhất (cả ngang lẫn dọc)
+  const centerGroup = allConsecutiveGroups.reduce((best, group) => {
+    const groupCenter = (group[0].seat_column + group[group.length - 1].seat_column) / 2;
+    const bestCenter = (best[0].seat_column + best[best.length - 1].seat_column) / 2;
+
+    const groupRow = group[0].seat_name[0];
+    const bestRow = best[0].seat_name[0];
+    const groupRowIndex = allRows.indexOf(groupRow);
+    const bestRowIndex = allRows.indexOf(bestRow);
+
+    // Tính khoảng cách tổng hợp (ngang + dọc)
+    const groupDistance = Math.abs(groupCenter - centerColumn) + Math.abs(groupRowIndex - centerRowIndex) * 10;
+    const bestDistance = Math.abs(bestCenter - centerColumn) + Math.abs(bestRowIndex - centerRowIndex) * 10;
+
+    return groupDistance < bestDistance ? group : best;
+  });
+
+  return centerGroup;
 };
 
 module.exports = {
