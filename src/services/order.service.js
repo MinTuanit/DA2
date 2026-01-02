@@ -3,6 +3,7 @@ const Discount = require("../models/discount");
 const OrderProductDetail = require("../models/orderproductdetail");
 const Ticket = require("../models/ticket");
 const sendOrderConfirmationEmail = require('../utils/email');
+const { updateLoyaltyPoints } = require('../services/user.service');
 const formatDate = require("../utils/formatdate");
 const puppeteer = require('puppeteer');
 const generateOrderHtml = require('../utils/generateOrderHtml');
@@ -96,6 +97,14 @@ async function createOrders(data) {
     }
 
     await session.commitTransaction();
+
+    if (order.user_id) {
+      try {
+        await updateLoyaltyPoints(order.user_id, total_price);
+      } catch (err) {
+        console.error('Error updating loyalty points:', err.message);
+      }
+    }
 
     // Lấy lại dữ liệu đã populate
     const [populatedTickets, populatedProducts] = await Promise.all([
