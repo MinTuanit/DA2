@@ -51,7 +51,7 @@ const chatbot = async (req, res) => {
     console.log("Prompt content:\n", systemPrompt);
 
     // Sử dụng Gemini 2.0 Flash
-    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-exp" });
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
     // Kết hợp system prompt với user message
     const fullPrompt = `${systemPrompt}\n\nUser question: ${req.body.message}\n\nPlease respond in Vietnamese and be helpful about cinema information.`;
